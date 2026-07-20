@@ -11,7 +11,7 @@ Two modes:
 Examples
 --------
     zedx                                   # interactive wizard
-    zedx --provider HyberOrbit \
+    zedx --provider MyProvider \
          --api-url https://api.example.com/v1 \
          --api-key sk-xxx \
          --model hy3 --model hy3-mini \
@@ -136,7 +136,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     # Non-interactive provider options.
     g = p.add_argument_group("provider (non-interactive mode)")
-    g.add_argument("--provider", help="Provider name, e.g. 'HyberOrbit'")
+    g.add_argument("--provider", help="Provider name, e.g. 'MyProvider'")
     g.add_argument("--api-url", help="API base URL, e.g. https://.../v1")
     g.add_argument("--api-key", help="API key for the provider")
     g.add_argument(

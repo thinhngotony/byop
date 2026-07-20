@@ -15,9 +15,9 @@ from zedx.core.targets.zed import ZedTarget
 
 def _provider(**over):
     base = {  # noqa: C408 - deliberate dict() to allow .update(over)
-        "provider_name": "HyberOrbit",
-        "api_url": "https://api.hyberorbit.com/v1/",
-        "api_key": "sk-88ea43a63d24a7d5",
+        "provider_name": "ExampleProvider",
+        "api_url": "https://api.example.com/v1/",
+        "api_key": "sk-example12345678",
         "models": [ModelConfig(name="hy3", max_tokens=250000,
                                max_output_tokens=32000,
                                reasoning_effort="medium")],
@@ -47,8 +47,8 @@ def test_detect_installed_filters():
 # ----------------------------------------------------------------------
 def test_zed_build_fragment():
     frag = ZedTarget().build_fragment(_provider())
-    oc = frag["language_models"]["openai_compatible"]["HyberOrbit"]
-    assert oc["api_url"] == "https://api.hyberorbit.com/v1"
+    oc = frag["language_models"]["openai_compatible"]["ExampleProvider"]
+    assert oc["api_url"] == "https://api.example.com/v1"
     assert frag["agent"]["inline_assistant_model"]["model"] == "hy3"
 
 
@@ -63,9 +63,9 @@ def test_zed_configure_writes_and_merges(tmp_path):
         target.configure(_provider(), log=lambda m: None)
     data = sett.load_path(settings)
     assert data["vim_mode"] is True
-    assert "HyberOrbit" in data["language_models"]["openai_compatible"]
+    assert "ExampleProvider" in data["language_models"]["openai_compatible"]
     ek.assert_called_once()
-    assert ek.call_args.kwargs["server"] == "https://api.hyberorbit.com/v1"
+    assert ek.call_args.kwargs["server"] == "https://api.example.com/v1"
 
 
 def test_zed_dry_run_does_not_write(tmp_path):
@@ -94,8 +94,8 @@ def test_py_build_fragment_shape():
                     capabilities={"max_tokens_parameter": True})
     ])
     frag = PyTarget().build_fragment(provider)
-    prov = frag["providers"]["HyberOrbit"]
-    assert prov["baseUrl"] == "https://api.hyberorbit.com/v1"
+    prov = frag["providers"]["ExampleProvider"]
+    assert prov["baseUrl"] == "https://api.example.com/v1"
     assert prov["api"] == "openai-completions"
     assert prov["authHeader"] is True
     model = prov["models"][0]
@@ -125,7 +125,7 @@ def test_py_build_fragment_uses_keychain_command():
     provider = _provider()
     with mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=True):
         frag = PyTarget().build_fragment(provider)
-    assert frag["providers"]["HyberOrbit"]["apiKey"].startswith("!security")
+    assert frag["providers"]["ExampleProvider"]["apiKey"].startswith("!security")
 
 
 def test_py_configure_writes_models_json(tmp_path):
@@ -135,8 +135,8 @@ def test_py_configure_writes_models_json(tmp_path):
          mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=True):
         target.configure(_provider(), log=lambda m: None)
     data = json.loads(models.read_text())
-    assert "HyberOrbit" in data["providers"]
-    assert data["providers"]["HyberOrbit"]["apiKey"].startswith("!security")
+    assert "ExampleProvider" in data["providers"]
+    assert data["providers"]["ExampleProvider"]["apiKey"].startswith("!security")
 
 
 def test_py_configure_merges_existing_providers(tmp_path):
@@ -149,7 +149,7 @@ def test_py_configure_merges_existing_providers(tmp_path):
          mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=True):
         target.configure(_provider(), log=lambda m: None)
     data = json.loads(models.read_text())
-    assert "HyberOrbit" in data["providers"]
+    assert "ExampleProvider" in data["providers"]
     assert "Other" in data["providers"]
 
 

@@ -14,9 +14,9 @@ from zedx.core.config import ModelConfig, ProviderConfig
 
 def _provider() -> ProviderConfig:
     return ProviderConfig(
-        provider_name="HyberOrbit",
-        api_url="https://api.hyberorbit.com/v1/",
-        api_key="sk-88ea43a63d24a7d5",
+        provider_name="ExampleProvider",
+        api_url="https://api.example.com/v1/",
+        api_key="sk-example12345678",
         models=[ModelConfig(name="hy3", max_tokens=250000,
                             max_output_tokens=32000)],
         set_default_agent=True,
@@ -61,17 +61,17 @@ def test_apply_writes_expected_settings(tmp_path):
 
     reloaded = sett.load_path(settings)
     assert reloaded["vim_mode"] is True
-    oc = reloaded["language_models"]["openai_compatible"]["HyberOrbit"]
-    assert oc["api_url"] == "https://api.hyberorbit.com/v1"
+    oc = reloaded["language_models"]["openai_compatible"]["ExampleProvider"]
+    assert oc["api_url"] == "https://api.example.com/v1"
     assert oc["available_models"][0]["name"] == "hy3"
     assert reloaded["agent"]["inline_assistant_model"] == {
-        "provider": "HyberOrbit",
+        "provider": "ExampleProvider",
         "model": "hy3",
     }
     assert "default_model" in reloaded["agent"]
     # keychain server uses normalized url
     _, kwargs = mocks["keychain"].call_args
-    assert kwargs["server"] == "https://api.hyberorbit.com/v1"
+    assert kwargs["server"] == "https://api.example.com/v1"
 
 
 def test_apply_invalid_provider_raises(tmp_path):
@@ -112,9 +112,9 @@ def test_current_provider_names(tmp_path):
     sett.write_path(settings, {
         "language_models": {
             "openai_compatible": {
-                "HyberOrbit": {"api_url": "x", "available_models": []}
+                "ExampleProvider": {"api_url": "x", "available_models": []}
             }
         }
     })
     names = applymod.current_provider_names(settings)
-    assert names == ["HyberOrbit"]
+    assert names == ["ExampleProvider"]

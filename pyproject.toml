@@ -7,7 +7,7 @@ name = "zedx"
 version = "1.1.0"
 description = "Interactive CLI to set up custom LLM providers for the Zed editor"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "zedx" }]
 keywords = ["zed", "llm", "ai", "editor", "openai-compatible"]

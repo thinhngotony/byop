@@ -16,8 +16,8 @@ from zedx.core.config import (
 
 def _provider(**overrides) -> ProviderConfig:
     base = {
-        "provider_name": "HyberOrbit",
-        "api_url": "https://api.hyberorbit.com/v1/",
+        "provider_name": "ExampleProvider",
+        "api_url": "https://api.example.com/v1/",
         "api_key": "sk-12345678",
         "models": [ModelConfig(name="hy3")],
     }
@@ -53,8 +53,8 @@ def test_normalized_api_url_strips_slash():
 
 
 def test_env_var_name_basic():
-    p = _provider(provider_name="HyberOrbit")
-    assert p.env_var_name() == "HYBERORBIT_API_KEY"
+    p = _provider(provider_name="ExampleProvider")
+    assert p.env_var_name() == "EXAMPLEPROVIDER_API_KEY"
 
 
 def test_env_var_name_spaces_and_symbols():
@@ -70,17 +70,17 @@ def test_keychain_server_uses_normalized_url():
 def test_language_models_block():
     p = _provider()
     block = p.language_models_block()
-    assert "HyberOrbit" in block
-    assert block["HyberOrbit"]["api_url"] == "https://api.hyberorbit.com/v1"
-    assert block["HyberOrbit"]["available_models"][0]["name"] == "hy3"
+    assert "ExampleProvider" in block
+    assert block["ExampleProvider"]["api_url"] == "https://api.example.com/v1"
+    assert block["ExampleProvider"]["available_models"][0]["name"] == "hy3"
 
 
 def test_agent_block_defaults():
     p = _provider()
     agent = p.agent_block()
-    assert agent["default_model"] == {"provider": "HyberOrbit", "model": "hy3"}
+    assert agent["default_model"] == {"provider": "ExampleProvider", "model": "hy3"}
     assert agent["inline_assistant_model"] == {
-        "provider": "HyberOrbit",
+        "provider": "ExampleProvider",
         "model": "hy3",
     }
     assert "commit_message_model" not in agent

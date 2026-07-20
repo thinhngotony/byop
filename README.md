@@ -1,50 +1,57 @@
 # zedx
 
+[![CI](https://github.com/example/zedx/actions/workflows/ci.yml/badge.svg)](https://github.com/example/zedx/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 **zedx** is a production-ready, interactive CLI that wires a **custom
-OpenAI-compatible LLM provider** into the [Zed](https://zed.dev) editor with a
-single command.
+OpenAI-compatible LLM provider** into your AI coding tools — starting with
+[Zed](https://zed.dev) and [py.dev (Pi)](https://pi.dev) — with a single
+command.
 
-It will:
+## Why
 
-1. **Detect which AI coding tools are installed** (Zed, py.dev, and — in the
-   future — Claude Code) and ask which ones you want to configure. Missing apps
-   can be installed for you on the spot.
-2. Always **upgrade each selected app to the latest stable version** before
-   configuring (Zed via Homebrew/download, py.dev via Homebrew).
-3. Prompt you (or accept flags) for your provider details: name, base URL,
-   API key, and one or more models.
-4. Merge the provider into each app's configuration **without clobbering your
-   existing setup**:
-   - **Zed** → `~/.config/zed/settings.json` (JSONC-aware; comments preserved).
-   - **py.dev (Pi)** → `~/.pi/agent/models.json` (providers block merged).
-5. Securely store the API key in the **macOS login keychain** for Zed and
-   export it as an environment variable (e.g. `HYBERORBIT_API_KEY`) for py.dev,
-   which resolves keys from the environment.
-6. Optionally enable the provider for the **Agent**, **Inline Assistant**,
-   **Git commit messages**, **thread summaries**, and **Edit Predictions**.
+Self-hosting or using a third-party OpenAI-compatible gateway (e.g. a private
+`/v1` endpoint) means repeating the same fiddly setup in every tool: install the
+app, find the right config file, get the provider schema right, and store the
+API key somewhere safe. `zedx` does all of that for you, consistently, and never
+writes your secret to disk in plaintext.
 
-> Platform support: **macOS** (the only platform with keychain integration
-> today). The architecture is built to add more targets (e.g. Claude Code) by
-> implementing a single module and registering it.
+## Features
 
-### Supported targets
+- **Multi-target** — detects which AI coding tools are installed and asks which
+  to configure. Missing apps can be installed for you on the spot.
+- **Always up to date** — upgrades each selected app to the latest stable
+  release before configuring.
+- **One provider, many tools** — configure Zed and py.dev from the same input.
+- **Non-destructive** — merges into each app's config, preserving your existing
+  settings and comments.
+- **Secure by default** — API keys live in the macOS login keychain (Zed) or are
+  read from the keychain at runtime (py.dev); never plaintext in config files.
+- **Scriptable** — full non-interactive flag mode for CI and dotfiles.
+- **Extensible** — adding a new tool (e.g. Claude Code) is one module + one line
+  in a registry.
+
+## Supported targets
 
 | Target | Config file | Install |
 | --- | --- | --- |
 | `zed` (Zed) | `~/.config/zed/settings.json` | Homebrew cask / direct download |
 | `py` (py.dev / Pi) | `~/.pi/agent/models.json` | Homebrew cask |
 
----
+> Platform: **macOS**. The keychain integration is macOS-specific; the
+> architecture is built so other platforms/tools can be added behind the same
+> `Target` interface.
 
 ## Installation
 
 ```bash
 git clone https://github.com/example/zedx.git
 cd zedx
-python3 -m pip install -e ".[dev]"      # includes test/lint tooling
+python3 -m pip install -e ".[dev]"      # includes test/lint/type tooling
 ```
 
-This installs the `zedx` command.
+This installs the `zedx` command. Requires Python 3.11+.
 
 ## Usage
 
@@ -54,13 +61,13 @@ This installs the `zedx` command.
 zedx
 ```
 
-You'll be guided through every step. After entering provider details, zedx
-detects your installed tools and asks which to configure:
+You are guided through provider details, then `zedx` detects your installed
+tools and asks which to configure:
 
 ```
-=== zedx — Custom LLM provider setup for Zed ===
-› Provider name (e.g. 'HyberOrbit'): HyberOrbit
-› API base URL (e.g. 'https://api.example.com/v1'): https://api.hyberorbit.com/v1
+=== zedx — Custom LLM provider setup ===
+› Provider name (e.g. 'MyProvider'): MyProvider
+› API base URL (e.g. 'https://api.example.com/v1'): https://api.example.com/v1
 › API key: ********************************
 ...
 
@@ -75,21 +82,19 @@ detects your installed tools and asks which to configure:
 
 ```bash
 zedx \
-  --provider "HyberOrbit" \
-  --api-url "https://api.hyberorbit.com/v1" \
+  --provider "MyProvider" \
+  --api-url "https://api.example.com/v1" \
   --api-key "sk-xxxx" \
-  --model hy3 --model hy3-mini \
+  --model my-model \
   --inline-assistant --default-agent
 ```
-
-Useful flags:
 
 | Flag | Purpose |
 | --- | --- |
 | `--target {zed,py}` | Configure only the named target(s); repeatable. Defaults to all detected apps. |
 | `--settings PATH` | Override the Zed settings path (default `~/.config/zed/settings.json`). |
 | `--dry-run` | Print the configuration fragments that *would* be written; change nothing. |
-| `--no-keychain` | Skip writing the key to the macOS keychain (falls back to an env var). |
+| `--no-keychain` | Skip the macOS keychain (falls back to an embedded key — less secure). |
 | `--env-key` | Also export the key as a shell environment variable. |
 | `--skip-install` | Configure settings only; do not install/upgrade any app. |
 
@@ -98,7 +103,7 @@ features that take a single model.
 
 ## What it writes
 
-Given a provider `HyberOrbit` with model `hy3`, zedx produces:
+For a provider `MyProvider` with model `my-model`:
 
 **Zed** (`~/.config/zed/settings.json`):
 
@@ -106,17 +111,17 @@ Given a provider `HyberOrbit` with model `hy3`, zedx produces:
 {
   "language_models": {
     "openai_compatible": {
-      "HyberOrbit": {
-        "api_url": "https://api.hyberorbit.com/v1",
+      "MyProvider": {
+        "api_url": "https://api.example.com/v1",
         "available_models": [
-          { "name": "hy3", "max_tokens": 250000, "max_output_tokens": 32000 }
+          { "name": "my-model", "max_tokens": 128000, "max_output_tokens": 32000 }
         ]
       }
     }
   },
   "agent": {
-    "default_model":          { "provider": "HyberOrbit", "model": "hy3" },
-    "inline_assistant_model": { "provider": "HyberOrbit", "model": "hy3" }
+    "default_model":          { "provider": "MyProvider", "model": "my-model" },
+    "inline_assistant_model": { "provider": "MyProvider", "model": "my-model" }
   }
 }
 ```
@@ -126,13 +131,13 @@ Given a provider `HyberOrbit` with model `hy3`, zedx produces:
 ```json
 {
   "providers": {
-    "HyberOrbit": {
-      "baseUrl": "https://api.hyberorbit.com/v1",
+    "MyProvider": {
+      "baseUrl": "https://api.example.com/v1",
       "api": "openai-completions",
-      "apiKey": "$HYBERORBIT_API_KEY",
+      "apiKey": "!security find-internet-password -s https://api.example.com/v1 -a Bearer -w",
       "authHeader": true,
       "models": [
-        { "id": "hy3", "name": "hy3", "contextWindow": 250000,
+        { "id": "my-model", "name": "my-model", "contextWindow": 128000,
           "maxTokens": 32000, "input": ["text"] }
       ]
     }
@@ -140,17 +145,62 @@ Given a provider `HyberOrbit` with model `hy3`, zedx produces:
 }
 ```
 
-and stores the API key in the login keychain keyed by the `api_url`.
+The py.dev `apiKey` is a `!command` that reads the secret from the macOS
+keychain **at request time**, so the key is never stored in `models.json`. If no
+keychain entry exists, `zedx` falls back to embedding the key inline (with a
+warning).
 
 ## Security
 
-- The API key is written to the **macOS login keychain** by default — never to
-  `settings.json` or shell history.
-- The `--env-key` fallback writes a single `export` line to `~/.zshrc` (or
+- **Zed**: the API key is written to the **macOS login keychain** keyed by the
+  provider `api_url` (account `Bearer`) — the same entry Zed itself uses. It is
+  never written to `settings.json` or shell history.
+- **py.dev**: the key is read from that same keychain entry via a `!command`
+  reference, so `models.json` contains no secret.
+- The `--env-key` option appends a single `export` line to `~/.zshrc` (or
   another detected profile) and refuses to duplicate it on re-runs.
-- Zed derives the key env var name from the provider name as
-  `<PROVIDER_NAME_UPPER_SNAKE>_API_KEY` (e.g. `HyberOrbit` →
-  `HYBERORBIT_API_KEY`).
+- No credentials are sent over the network by `zedx` itself; it only writes
+  local config files and keychain entries.
+
+## Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| py.dev: "No API key found" | Ensure the keychain entry exists (`zedx` writes it) or re-run `zedx --target py`. |
+| Zed: "provider not configured" | Restart Zed after configuration; the model must be listed under `language_models.openai_compatible`. |
+| Tool not detected | Pass `--target zed`/`--target py` explicitly, or install the app and re-run. |
+| Dry run shows nothing | You disabled all targets; re-run and answer the target prompts, or pass `--target`. |
+
+## Architecture
+
+```
+zedx/
+├── cli.py                 # argparse entry point, interactive/non-interactive
+├── core/
+│   ├── config.py          # ProviderConfig model + validation + Zed fragments
+│   ├── settings.py        # JSONC-aware read/merge/write for Zed
+│   ├── keychain.py        # macOS keychain + env-var key storage
+│   ├── zed.py             # Zed install/upgrade (brew + direct download)
+│   ├── wizard.py          # interactive prompts
+│   ├── prompt.py          # rich-based prompts (stdlib fallback)
+│   ├── apply.py           # legacy Zed helper (delegates to targets)
+│   └── targets/           # one module per app
+│       ├── base.py        # Target protocol
+│       ├── zed.py         # ZedTarget
+│       ├── py.py          # PyTarget (py.dev)
+│       └── registry.py    # ALL_TARGETS + extension point
+└── tests/                 # unit + integration (pytest)
+```
+
+## Adding a new target (e.g. Claude Code)
+
+Implement a class with the `Target` interface
+(`is_installed`, `install`, `configure`, `current_provider_names`) in
+`zedx/core/targets/<name>.py`, then register it in
+`zedx/core/targets/registry.py::ALL_TARGETS`. The CLI automatically detects it,
+asks whether to configure/install it, and wires the provider through your
+`configure` method. A commented `ClaudeTarget` template is already present in
+the registry.
 
 ## Development
 
@@ -161,18 +211,8 @@ ruff check zedx tests # lint
 mypy zedx              # type check
 ```
 
-CI (`.github/workflows/ci.yml`) runs lint, type-check, and tests on
-macOS across Python 3.9–3.13, then builds distribution artifacts.
-
-## Adding a new target (e.g. Claude Code)
-
-Implement a class with the :class:`Target` interface
-(`is_installed`, `install`, `configure`, `current_provider_names`) in
-`zedx/core/targets/<name>.py`, then register it in
-`zedx/core/targets/registry.py::ALL_TARGETS`. The interactive CLI will
-automatically detect it, ask the user whether to configure/install it, and
-wire the provider through your `configure` method. A commented `ClaudeTarget`
-placeholder is already present in the registry as a template.
+CI (`.github/workflows/ci.yml`) runs lint, type-check, and tests on macOS
+across Python 3.11–3.13, then builds distribution artifacts.
 
 ## License
 
