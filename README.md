@@ -1,6 +1,6 @@
 # zedx
 
-[![CI](https://github.com/example/zedx/actions/workflows/ci.yml/badge.svg)](https://github.com/example/zedx/actions/workflows/ci.yml)
+[![CI](https://github.com/thinhngotony/zedx/actions/workflows/ci.yml/badge.svg)](https://github.com/thinhngotony/zedx/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -46,7 +46,7 @@ writes your secret to disk in plaintext.
 ## Installation
 
 ```bash
-git clone https://github.com/example/zedx.git
+git clone https://github.com/thinhngotony/zedx.git
 cd zedx
 python3 -m pip install -e ".[dev]"      # includes test/lint/type tooling
 ```
