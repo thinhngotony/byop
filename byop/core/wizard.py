@@ -66,7 +66,7 @@ def run_wizard() -> tuple[ProviderConfig, dict]:
     chosen key-storage preferences (``use_keychain`` / ``use_env``).
     """
 
-    prompt.header("zedx — Custom LLM provider setup for Zed")
+    prompt.header("byop — Custom LLM provider setup for Zed")
     prompt.info(
         "This wizard installs/upgrades Zed and wires a custom "
         "OpenAI-compatible provider into it."

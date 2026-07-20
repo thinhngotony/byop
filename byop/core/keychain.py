@@ -47,6 +47,9 @@ def keychain_set(server: str, api_key: str, account: str = "Bearer") -> None:
 
     # Remove any pre-existing entry to avoid duplicates.
     _run(["security", "delete-internet-password", "-s", server, "-a", account])
+    # Write to the login keychain without a -T trust restriction (an empty
+    # -T path is invalid). The first app to read the entry will prompt for
+    # access, which is the secure default.
     res = _run(
         [
             "security",
@@ -57,8 +60,6 @@ def keychain_set(server: str, api_key: str, account: str = "Bearer") -> None:
             server,
             "-w",
             api_key,
-            "-T",
-            "",
             LOGIN_KEYCHAIN,
         ]
     )
@@ -115,7 +116,7 @@ def write_env_to_profile(
         if line in existing:
             return target
     with target.open("a", encoding="utf-8") as fh:
-        fh.write("\n# Added by zedx for custom LLM provider\n")
+        fh.write("\n# Added by byop for custom LLM provider\n")
         fh.write(line + "\n")
     return target
 

@@ -1,4 +1,4 @@
-"""Interactive prompt helpers for zedx.
+"""Interactive prompt helpers for byop.
 
 Uses `rich` for a polished experience when available, and degrades gracefully
 to plain stdlib input/output otherwise so the tool works in minimal CI shells.

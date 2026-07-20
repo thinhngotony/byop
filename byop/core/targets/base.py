@@ -1,4 +1,4 @@
-"""Target abstraction for applications zedx can configure.
+"""Target abstraction for applications byop can configure.
 
 A *target* is any AI-coding application (Zed, py.dev, a future Claude Code
 integration, ...) that can be wired to a custom OpenAI-compatible provider.

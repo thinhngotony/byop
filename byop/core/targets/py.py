@@ -48,23 +48,24 @@ class PyTarget:
 
     def install(self, log: Callable[[str], None] = print) -> None:
         if shutil.which("brew") is not None:
-            log("Installing py.dev via Homebrew...")
+            log("Installing py.dev (Pi) via Homebrew...")
             import subprocess
 
             res = subprocess.run(
-                ["brew", "install", "--cask", "pi"],
+                ["brew", "install", "pi-coding-agent"],
                 capture_output=True, text=True, check=False,
             )
             if res.returncode != 0:
                 raise RuntimeError(
-                    "Homebrew install of pi failed:\n" + (res.stderr or res.stdout)
+                    "Homebrew install of pi-coding-agent failed:\n"
+                    + (res.stderr or res.stdout)
                 )
             log("py.dev installed via Homebrew.")
             return
-        log(
-            "Homebrew not found. Install py.dev from https://pi.dev "
-            "and re-run zedx."
-        )
+        log("Homebrew not found. Install py.dev with one of:")
+        log("  curl -fsSL https://pi.dev/install.sh | sh")
+        log("  npm install -g @earendil-works/pi-coding-agent")
+        log("then re-run byop.")
 
     # ------------------------------------------------------------------
     def _api_key_ref(self, provider: ProviderConfig) -> str:
@@ -146,12 +147,27 @@ class PyTarget:
             raise ValueError("Invalid provider configuration:\n  - " +
                              "\n  - ".join(errors))
 
-        fragment = self.build_fragment(provider)
-
         if dry_run:
+            fragment = self.build_fragment(provider)
             log("[dry-run] py.dev would write the following models.json fragment:")
             log(json.dumps(fragment, indent=2))
             return
+
+        # Ensure the secret lives in the keychain so we can reference it via a
+        # secure ``!command`` (launch-independent) instead of embedding it.
+        # Only skipped when the user explicitly passes --no-keychain, in which
+        # case the key is embedded in plaintext (see warning below).
+        if use_keychain:
+            kc.ensure_key(
+                server=provider.keychain_server(),
+                api_key=provider.api_key,
+                env_var=provider.env_var_name(),
+                log=log,
+                use_keychain=True,
+                use_env=use_env,
+            )
+
+        fragment = self.build_fragment(provider)
 
         # Merge into models.json preserving other providers.
         self.models_path.parent.mkdir(parents=True, exist_ok=True)
@@ -166,8 +182,9 @@ class PyTarget:
             log("API key is read from the macOS keychain at runtime (secure).")
         else:
             log(
-                "Warning: API key is embedded in models.json in plaintext "
-                "(no keychain entry was found)."
+                "Warning: --no-keychain was set, so the API key is embedded in "
+                "models.json in plaintext. Prefer removing --no-keychain so the "
+                "key is read from the macOS keychain instead."
             )
 
     # ------------------------------------------------------------------

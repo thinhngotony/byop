@@ -1,4 +1,4 @@
-"""Provider configuration model and validation for zedx.
+"""Provider configuration model and validation for byop.
 
 This module defines the :class:`ProviderConfig` dataclass that captures all
 information needed to wire a custom OpenAI-compatible LLM provider into Zed,

@@ -1,4 +1,4 @@
-"""Target subpackage for zedx."""
+"""Target subpackage for byop."""
 
 from .base import Target, configure_all, detect_installed
 from .py import PyTarget

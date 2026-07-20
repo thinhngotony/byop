@@ -6,10 +6,10 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from zedx.core import apply as applymod
-from zedx.core import keychain as kc
-from zedx.core import settings as sett
-from zedx.core.config import ModelConfig, ProviderConfig
+from byop.core import apply as applymod
+from byop.core import keychain as kc
+from byop.core import settings as sett
+from byop.core.config import ModelConfig, ProviderConfig
 
 
 def _provider() -> ProviderConfig:
@@ -26,7 +26,7 @@ def _provider() -> ProviderConfig:
 
 def _mock_all():
     patches = []
-    p_install = mock.patch("zedx.core.targets.zed.zedmod.install")
+    p_install = mock.patch("byop.core.targets.zed.zedmod.install")
     p_keychain = mock.patch.object(
         kc, "ensure_key", return_value=["keychain:x"]
     )

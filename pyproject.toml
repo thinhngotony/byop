@@ -3,20 +3,23 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "zedx"
-version = "1.1.0"
-description = "Interactive CLI to set up custom LLM providers for the Zed editor"
+name = "byop"
+version = "1.2.0"
+description = "Bring Your Own Provider (BYOP): interactive CLI to wire a custom OpenAI-compatible LLM provider into Zed, py.dev, and other AI coding tools"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "zedx" }]
-keywords = ["zed", "llm", "ai", "editor", "openai-compatible"]
+authors = [{ name = "byop" }]
+keywords = ["byop", "llm", "ai", "editor", "openai-compatible", "zed", "py.dev", "bring-your-own-provider"]
 classifiers = [
     "Environment :: Console",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: MacOS",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Utilities",
 ]
 dependencies = [
@@ -28,13 +31,13 @@ test = ["pytest>=7.0", "pytest-cov"]
 dev = ["pytest>=7.0", "pytest-cov", "ruff", "mypy"]
 
 [project.scripts]
-zedx = "zedx.cli:main"
+byop = "byop.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/example/zedx"
+Homepage = "https://github.com/thinhngotony/byop"
 
 [tool.setuptools.packages.find]
-include = ["zedx", "zedx.*"]
+include = ["byop", "byop.*"]
 
 [tool.ruff]
 line-length = 100

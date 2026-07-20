@@ -7,10 +7,10 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from zedx.core.config import ModelConfig, ProviderConfig
-from zedx.core.targets import available_targets, detect_installed
-from zedx.core.targets.py import PyTarget
-from zedx.core.targets.zed import ZedTarget
+from byop.core.config import ModelConfig, ProviderConfig
+from byop.core.targets import available_targets, detect_installed
+from byop.core.targets.py import PyTarget
+from byop.core.targets.zed import ZedTarget
 
 
 def _provider(**over):
@@ -54,11 +54,11 @@ def test_zed_build_fragment():
 
 def test_zed_configure_writes_and_merges(tmp_path):
     settings = tmp_path / "settings.json"
-    sett = __import__("zedx.core.settings", fromlist=["settings"])
+    sett = __import__("byop.core.settings", fromlist=["settings"])
     sett.write_path(settings, {"vim_mode": True})
     target = ZedTarget(settings_path=settings)
     with mock.patch.object(target, "install"), \
-         mock.patch("zedx.core.targets.zed.kc.ensure_key",
+         mock.patch("byop.core.targets.zed.kc.ensure_key",
                     return_value=["k:x"]) as ek:
         target.configure(_provider(), log=lambda m: None)
     data = sett.load_path(settings)
@@ -80,9 +80,9 @@ def test_zed_dry_run_does_not_write(tmp_path):
 # py.dev target
 # ----------------------------------------------------------------------
 def test_py_is_installed_via_cli():
-    with mock.patch("zedx.core.targets.py.shutil.which", return_value="/opt/homebrew/bin/pi"):
+    with mock.patch("byop.core.targets.py.shutil.which", return_value="/opt/homebrew/bin/pi"):
         assert PyTarget().is_installed() is True
-    with mock.patch("zedx.core.targets.py.shutil.which", return_value=None), \
+    with mock.patch("byop.core.targets.py.shutil.which", return_value=None), \
          mock.patch.object(Path, "exists", return_value=False):
         assert PyTarget().is_installed() is False
 
@@ -108,7 +108,7 @@ def test_py_build_fragment_shape():
 
 def test_py_api_key_ref_uses_keychain_command_when_present():
     provider = _provider()
-    with mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=True):
+    with mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
         ref = PyTarget()._api_key_ref(provider)
     assert ref.startswith("!security find-internet-password")
     assert provider.keychain_server() in ref
@@ -116,14 +116,14 @@ def test_py_api_key_ref_uses_keychain_command_when_present():
 
 def test_py_api_key_ref_falls_back_to_literal_without_keychain():
     provider = _provider()
-    with mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=False):
+    with mock.patch("byop.core.targets.py.kc.keychain_has", return_value=False):
         ref = PyTarget()._api_key_ref(provider)
     assert ref == provider.api_key
 
 
 def test_py_build_fragment_uses_keychain_command():
     provider = _provider()
-    with mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=True):
+    with mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
         frag = PyTarget().build_fragment(provider)
     assert frag["providers"]["ExampleProvider"]["apiKey"].startswith("!security")
 
@@ -132,7 +132,7 @@ def test_py_configure_writes_models_json(tmp_path):
     models = tmp_path / "models.json"
     target = PyTarget(models_path=models)
     with mock.patch.object(target, "install"), \
-         mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=True):
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
         target.configure(_provider(), log=lambda m: None)
     data = json.loads(models.read_text())
     assert "ExampleProvider" in data["providers"]
@@ -146,7 +146,7 @@ def test_py_configure_merges_existing_providers(tmp_path):
     }))
     target = PyTarget(models_path=models)
     with mock.patch.object(target, "install"), \
-         mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=True):
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
         target.configure(_provider(), log=lambda m: None)
     data = json.loads(models.read_text())
     assert "ExampleProvider" in data["providers"]

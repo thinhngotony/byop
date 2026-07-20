@@ -27,13 +27,13 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Ruff lint
-        run: ruff check zedx tests
+        run: ruff check byop tests
 
       - name: Mypy type check
-        run: mypy zedx
+        run: mypy byop
 
       - name: Pytest
-        run: pytest --cov=zedx --cov-report=term-missing
+        run: pytest --cov=byop --cov-report=term-missing
 
   build:
     name: Build distribution

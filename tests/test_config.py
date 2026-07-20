@@ -5,8 +5,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from zedx.core import default_model_capabilities
-from zedx.core.config import (
+from byop.core import default_model_capabilities
+from byop.core.config import (
     KNOWN_CAPABILITIES,
     KNOWN_REASONING_EFFORTS,
     ModelConfig,

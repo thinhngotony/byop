@@ -1,12 +1,13 @@
-# zedx
+# byop
 
-[![CI](https://github.com/thinhngotony/zedx/actions/workflows/ci.yml/badge.svg)](https://github.com/thinhngotony/zedx/actions/workflows/ci.yml)
+[![CI](https://github.com/thinhngotony/byop/actions/workflows/ci.yml/badge.svg)](https://github.com/thinhngotony/byop/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**zedx** is a production-ready, interactive CLI that wires a **custom
-OpenAI-compatible LLM provider** into your AI coding tools — starting with
-[Zed](https://zed.dev) and [py.dev (Pi)](https://pi.dev) — with a single
+**byop** (**B**ring **Y**our **O**wn **P**rovider) is a production-ready,
+interactive CLI that wires a **custom OpenAI-compatible LLM provider** — the
+endpoint is yours to supply — into your AI coding tools, starting with
+[Zed](https://zed.dev) and [py.dev (Pi)](https://pi.dev), with a single
 command.
 
 ## Why
@@ -14,7 +15,7 @@ command.
 Self-hosting or using a third-party OpenAI-compatible gateway (e.g. a private
 `/v1` endpoint) means repeating the same fiddly setup in every tool: install the
 app, find the right config file, get the provider schema right, and store the
-API key somewhere safe. `zedx` does all of that for you, consistently, and never
+API key somewhere safe. `byop` does all of that for you, consistently, and never
 writes your secret to disk in plaintext.
 
 ## Features
@@ -26,6 +27,9 @@ writes your secret to disk in plaintext.
 - **One provider, many tools** — configure Zed and py.dev from the same input.
 - **Non-destructive** — merges into each app's config, preserving your existing
   settings and comments.
+- **Idempotent** — safe to re-run: merging refreshes provider settings, while the
+  `agent` / `inline_assistant` / `edit_predictions` blocks are updated to the
+  currently selected provider on each run (they are not appended).
 - **Secure by default** — API keys live in the macOS login keychain (Zed) or are
   read from the keychain at runtime (py.dev); never plaintext in config files.
 - **Scriptable** — full non-interactive flag mode for CI and dotfiles.
@@ -46,26 +50,26 @@ writes your secret to disk in plaintext.
 ## Installation
 
 ```bash
-git clone https://github.com/thinhngotony/zedx.git
-cd zedx
+git clone https://github.com/thinhngotony/byop.git
+cd byop
 python3 -m pip install -e ".[dev]"      # includes test/lint/type tooling
 ```
 
-This installs the `zedx` command. Requires Python 3.11+.
+This installs the `byop` command. Requires Python 3.11+.
 
 ## Usage
 
 ### Interactive (recommended)
 
 ```bash
-zedx
+byop
 ```
 
-You are guided through provider details, then `zedx` detects your installed
+You are guided through provider details, then `byop` detects your installed
 tools and asks which to configure:
 
 ```
-=== zedx — Custom LLM provider setup ===
+=== byop — Custom LLM provider setup ===
 › Provider name (e.g. 'MyProvider'): MyProvider
 › API base URL (e.g. 'https://api.example.com/v1'): https://api.example.com/v1
 › API key: ********************************
@@ -81,7 +85,7 @@ tools and asks which to configure:
 ### Non-interactive (scripting / CI)
 
 ```bash
-zedx \
+byop \
   --provider "MyProvider" \
   --api-url "https://api.example.com/v1" \
   --api-key "sk-xxxx" \
@@ -147,7 +151,7 @@ For a provider `MyProvider` with model `my-model`:
 
 The py.dev `apiKey` is a `!command` that reads the secret from the macOS
 keychain **at request time**, so the key is never stored in `models.json`. If no
-keychain entry exists, `zedx` falls back to embedding the key inline (with a
+keychain entry exists, `byop` falls back to embedding the key inline (with a
 warning).
 
 ## Security
@@ -159,14 +163,14 @@ warning).
   reference, so `models.json` contains no secret.
 - The `--env-key` option appends a single `export` line to `~/.zshrc` (or
   another detected profile) and refuses to duplicate it on re-runs.
-- No credentials are sent over the network by `zedx` itself; it only writes
+- No credentials are sent over the network by `byop` itself; it only writes
   local config files and keychain entries.
 
 ## Troubleshooting
 
 | Symptom | Fix |
 | --- | --- |
-| py.dev: "No API key found" | Ensure the keychain entry exists (`zedx` writes it) or re-run `zedx --target py`. |
+| py.dev: "No API key found" | Ensure the keychain entry exists (`byop` writes it) or re-run `byop --target py`. |
 | Zed: "provider not configured" | Restart Zed after configuration; the model must be listed under `language_models.openai_compatible`. |
 | Tool not detected | Pass `--target zed`/`--target py` explicitly, or install the app and re-run. |
 | Dry run shows nothing | You disabled all targets; re-run and answer the target prompts, or pass `--target`. |
@@ -174,7 +178,7 @@ warning).
 ## Architecture
 
 ```
-zedx/
+byop/
 ├── cli.py                 # argparse entry point, interactive/non-interactive
 ├── core/
 │   ├── config.py          # ProviderConfig model + validation + Zed fragments
@@ -196,8 +200,8 @@ zedx/
 
 Implement a class with the `Target` interface
 (`is_installed`, `install`, `configure`, `current_provider_names`) in
-`zedx/core/targets/<name>.py`, then register it in
-`zedx/core/targets/registry.py::ALL_TARGETS`. The CLI automatically detects it,
+`byop/core/targets/<name>.py`, then register it in
+`byop/core/targets/registry.py::ALL_TARGETS`. The CLI automatically detects it,
 asks whether to configure/install it, and wires the provider through your
 `configure` method. A commented `ClaudeTarget` template is already present in
 the registry.
@@ -207,8 +211,8 @@ the registry.
 ```bash
 python3 -m pip install -e ".[dev]"
 pytest                 # unit + integration tests
-ruff check zedx tests # lint
-mypy zedx              # type check
+ruff check byop tests # lint
+mypy byop              # type check
 ```
 
 CI (`.github/workflows/ci.yml`) runs lint, type-check, and tests on macOS

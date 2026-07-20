@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from zedx.core import settings as sett
+from byop.core import settings as sett
 
 
 def test_loads_strips_line_comments():

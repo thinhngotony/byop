@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""zedx command-line interface.
+"""byop command-line interface.
 
 Two modes:
 
@@ -10,8 +10,8 @@ Two modes:
 
 Examples
 --------
-    zedx                                   # interactive wizard
-    zedx --provider MyProvider \
+    byop                                   # interactive wizard
+    byop --provider MyProvider \
          --api-url https://api.example.com/v1 \
          --api-key sk-xxx \
          --model hy3 --model hy3-mini \
@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from importlib.metadata import version as _pkg_version
 from pathlib import Path
 
 from .core import default_model_capabilities, prompt, wizard
@@ -94,11 +95,15 @@ def _parse_models(values: list[str]):
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="zedx",
+        prog="byop",
         description="Interactively set up a custom LLM provider for Zed, "
         "py.dev, and other AI coding tools.",
     )
-    p.add_argument("--version", action="version", version="%(prog)s 1.1.0")
+    p.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {_pkg_version('byop')}",
+    )
     p.add_argument(
         "--settings",
         type=Path,
@@ -215,7 +220,7 @@ def _select_targets(args, provider: ProviderConfig | None) -> list:
     # Interactive: ask the user.
     prompt.header("Target applications")
     prompt.info(
-        "zedx can configure the following AI coding tools with this provider."
+        "byop can configure the following AI coding tools with this provider."
     )
     selected: list = []
     for target in all_targets:
@@ -270,16 +275,12 @@ def main(argv: list[str] | None = None) -> int:
         prompt.warn("No target applications selected. Nothing to do.")
         return 0
 
-    if args.skip_install:
-        # Neutralize install() on every selected target.
-        for t in targets:
-            t.install = lambda log=print, t=t: None  # type: ignore[assignment]
-
     success = True
     for target in targets:
         try:
-            # Install (upgrades to latest) unless skipped.
-            target.install(log=prompt.info)
+            # Install/upgrade to the latest version unless the user opted out.
+            if not args.skip_install:
+                target.install(log=prompt.info)
             target.configure(
                 provider,
                 dry_run=args.dry_run,

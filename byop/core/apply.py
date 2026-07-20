@@ -1,6 +1,6 @@
-"""End-to-end configuration orchestration for zedx.
+"""End-to-end configuration orchestration for byop.
 
-This module now delegates to the :mod:`zedx.core.targets` abstractions. The
+This module now delegates to the :mod:`byop.core.targets` abstractions. The
 legacy :func:`apply_provider` / :func:`build_settings_update` helpers are kept
 for backward compatibility (and the existing test-suite) but simply wrap the
 :class:`ZedTarget`.
@@ -47,7 +47,7 @@ def apply_provider(
 ) -> dict[str, object]:
     """Apply a provider configuration to Zed (legacy helper).
 
-    Prefer using :class:`ZedTarget` / :func:`zedx.core.targets.configure_all`
+    Prefer using :class:`ZedTarget` / :func:`byop.core.targets.configure_all`
     for new code. This wraps :class:`ZedTarget` so existing callers and tests
     keep working.
     """

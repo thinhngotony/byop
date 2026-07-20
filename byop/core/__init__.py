@@ -1,4 +1,4 @@
-"""Core package for zedx."""
+"""Core package for byop."""
 
 from . import keychain, prompt, settings, zed
 from .apply import apply_provider, build_settings_update, default_model_capabilities

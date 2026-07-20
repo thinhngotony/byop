@@ -6,7 +6,7 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from zedx.core import zed as zedmod
+from byop.core import zed as zedmod
 
 
 def test_has_brew_true():

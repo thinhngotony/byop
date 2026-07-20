@@ -170,7 +170,7 @@ def latest_release_tag() -> str:
 
     req = urllib.request.Request(
         "https://api.github.com/repos/zed-industries/zed/releases/latest",
-        headers={"User-Agent": "zedx"},
+        headers={"User-Agent": "byop"},
     )
     with urllib.request.urlopen(req, timeout=30) as resp:  # noqa: S310
         data = json_loads(resp.read().decode("utf-8"))

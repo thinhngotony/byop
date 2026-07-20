@@ -6,7 +6,7 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from zedx.core import keychain as kc
+from byop.core import keychain as kc
 
 
 def _fake_run(returncode=0, stdout="", stderr=""):
