@@ -1,0 +1,89 @@
+"""Zed target: wires a provider into Zed's settings.json + keychain."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from pathlib import Path
+
+from .. import keychain as kc
+from .. import settings as sett
+from .. import zed as zedmod
+from ..config import ProviderConfig
+
+DEFAULT_SETTINGS_PATH = Path.home() / ".config" / "zed" / "settings.json"
+
+
+class ZedTarget:
+    name = "zed"
+    display_name = "Zed"
+
+    def __init__(self, settings_path: Path = DEFAULT_SETTINGS_PATH) -> None:
+        self.settings_path = settings_path
+
+    # ------------------------------------------------------------------
+    def is_installed(self) -> bool:
+        return zedmod.is_installed()
+
+    def install(self, log: Callable[[str], None] = print) -> None:
+        zedmod.install(log=log)
+
+    # ------------------------------------------------------------------
+    def build_fragment(self, provider: ProviderConfig) -> dict:
+        language_models = sett.merge(
+            {}, {"openai_compatible": provider.language_models_block()}
+        )
+        fragment: dict = {"language_models": language_models}
+
+        agent = provider.agent_block()
+        if agent:
+            fragment["agent"] = agent
+
+        ep = provider.edit_predictions_block()
+        if ep:
+            fragment["edit_predictions"] = ep
+
+        return fragment
+
+    def configure(
+        self,
+        provider: ProviderConfig,
+        *,
+        dry_run: bool = False,
+        use_keychain: bool = True,
+        use_env: bool = False,
+        log: Callable[[str], None] = print,
+    ) -> None:
+        errors = provider.validate()
+        if errors:
+            raise ValueError("Invalid provider configuration:\n  - " +
+                             "\n  - ".join(errors))
+
+        fragment = self.build_fragment(provider)
+
+        if dry_run:
+            log("[dry-run] Zed would write the following settings fragment:")
+            log(sett.dumps(fragment))
+            log(
+                f"[dry-run] Zed would store key for server="
+                f"{provider.keychain_server()}"
+            )
+            return
+
+        current = sett.load_path(self.settings_path)
+        merged = sett.merge(current, fragment)
+        sett.write_path(self.settings_path, merged)
+        log(f"Updated Zed settings at {self.settings_path}")
+
+        kc.ensure_key(
+            server=provider.keychain_server(),
+            api_key=provider.api_key,
+            env_var=provider.env_var_name(),
+            log=log,
+            use_keychain=use_keychain,
+            use_env=use_env,
+        )
+
+    def current_provider_names(self) -> list[str]:
+        data = sett.load_path(self.settings_path)
+        block = data.get("language_models", {}).get("openai_compatible", {})
+        return list(block.keys()) if isinstance(block, dict) else []

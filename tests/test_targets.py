@@ -1,0 +1,161 @@
+"""Tests for the multi-target abstraction: Zed, py.dev, and selection."""
+
+import json
+import sys
+from pathlib import Path
+from unittest import mock
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from zedx.core.config import ModelConfig, ProviderConfig
+from zedx.core.targets import available_targets, detect_installed
+from zedx.core.targets.py import PyTarget
+from zedx.core.targets.zed import ZedTarget
+
+
+def _provider(**over):
+    base = {  # noqa: C408 - deliberate dict() to allow .update(over)
+        "provider_name": "HyberOrbit",
+        "api_url": "https://api.hyberorbit.com/v1/",
+        "api_key": "sk-88ea43a63d24a7d5",
+        "models": [ModelConfig(name="hy3", max_tokens=250000,
+                               max_output_tokens=32000,
+                               reasoning_effort="medium")],
+    }
+    base.update(over)
+    return ProviderConfig(**base)
+
+
+def test_registry_returns_instances():
+    targets = available_targets()
+    names = {t.name for t in targets}
+    assert "zed" in names
+    assert "py" in names
+
+
+def test_detect_installed_filters():
+    zed = ZedTarget()
+    py = PyTarget()
+    with mock.patch.object(zed, "is_installed", return_value=True), \
+         mock.patch.object(py, "is_installed", return_value=False):
+        found = detect_installed([zed, py])
+    assert [t.name for t in found] == ["zed"]
+
+
+# ----------------------------------------------------------------------
+# Zed target
+# ----------------------------------------------------------------------
+def test_zed_build_fragment():
+    frag = ZedTarget().build_fragment(_provider())
+    oc = frag["language_models"]["openai_compatible"]["HyberOrbit"]
+    assert oc["api_url"] == "https://api.hyberorbit.com/v1"
+    assert frag["agent"]["inline_assistant_model"]["model"] == "hy3"
+
+
+def test_zed_configure_writes_and_merges(tmp_path):
+    settings = tmp_path / "settings.json"
+    sett = __import__("zedx.core.settings", fromlist=["settings"])
+    sett.write_path(settings, {"vim_mode": True})
+    target = ZedTarget(settings_path=settings)
+    with mock.patch.object(target, "install"), \
+         mock.patch("zedx.core.targets.zed.kc.ensure_key",
+                    return_value=["k:x"]) as ek:
+        target.configure(_provider(), log=lambda m: None)
+    data = sett.load_path(settings)
+    assert data["vim_mode"] is True
+    assert "HyberOrbit" in data["language_models"]["openai_compatible"]
+    ek.assert_called_once()
+    assert ek.call_args.kwargs["server"] == "https://api.hyberorbit.com/v1"
+
+
+def test_zed_dry_run_does_not_write(tmp_path):
+    settings = tmp_path / "settings.json"
+    target = ZedTarget(settings_path=settings)
+    with mock.patch.object(target, "install"):
+        target.configure(_provider(), dry_run=True, log=lambda m: None)
+    assert not settings.exists()
+
+
+# ----------------------------------------------------------------------
+# py.dev target
+# ----------------------------------------------------------------------
+def test_py_is_installed_via_cli():
+    with mock.patch("zedx.core.targets.py.shutil.which", return_value="/opt/homebrew/bin/pi"):
+        assert PyTarget().is_installed() is True
+    with mock.patch("zedx.core.targets.py.shutil.which", return_value=None), \
+         mock.patch.object(Path, "exists", return_value=False):
+        assert PyTarget().is_installed() is False
+
+
+def test_py_build_fragment_shape():
+    provider = _provider(models=[
+        ModelConfig(name="hy3", max_tokens=250000, max_output_tokens=32000,
+                    reasoning_effort="medium",
+                    capabilities={"max_tokens_parameter": True})
+    ])
+    frag = PyTarget().build_fragment(provider)
+    prov = frag["providers"]["HyberOrbit"]
+    assert prov["baseUrl"] == "https://api.hyberorbit.com/v1"
+    assert prov["api"] == "openai-completions"
+    assert prov["authHeader"] is True
+    model = prov["models"][0]
+    assert model["id"] == "hy3"
+    assert model["reasoning"] is True
+    # reasoning_effort 'medium' maps to high in thinkingLevelMap
+    assert prov["compat"]["supportsReasoningEffort"] is True
+    assert prov["compat"]["maxTokensField"] == "max_tokens"
+
+
+def test_py_api_key_ref_uses_keychain_command_when_present():
+    provider = _provider()
+    with mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=True):
+        ref = PyTarget()._api_key_ref(provider)
+    assert ref.startswith("!security find-internet-password")
+    assert provider.keychain_server() in ref
+
+
+def test_py_api_key_ref_falls_back_to_literal_without_keychain():
+    provider = _provider()
+    with mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=False):
+        ref = PyTarget()._api_key_ref(provider)
+    assert ref == provider.api_key
+
+
+def test_py_build_fragment_uses_keychain_command():
+    provider = _provider()
+    with mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=True):
+        frag = PyTarget().build_fragment(provider)
+    assert frag["providers"]["HyberOrbit"]["apiKey"].startswith("!security")
+
+
+def test_py_configure_writes_models_json(tmp_path):
+    models = tmp_path / "models.json"
+    target = PyTarget(models_path=models)
+    with mock.patch.object(target, "install"), \
+         mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=True):
+        target.configure(_provider(), log=lambda m: None)
+    data = json.loads(models.read_text())
+    assert "HyberOrbit" in data["providers"]
+    assert data["providers"]["HyberOrbit"]["apiKey"].startswith("!security")
+
+
+def test_py_configure_merges_existing_providers(tmp_path):
+    models = tmp_path / "models.json"
+    models.write_text(json.dumps({
+        "providers": {"Other": {"baseUrl": "x", "api": "openai-completions"}}
+    }))
+    target = PyTarget(models_path=models)
+    with mock.patch.object(target, "install"), \
+         mock.patch("zedx.core.targets.py.kc.keychain_has", return_value=True):
+        target.configure(_provider(), log=lambda m: None)
+    data = json.loads(models.read_text())
+    assert "HyberOrbit" in data["providers"]
+    assert "Other" in data["providers"]
+
+
+def test_py_dry_run_does_not_write(tmp_path):
+    models = tmp_path / "models.json"
+    target = PyTarget(models_path=models)
+    with mock.patch.object(target, "install"):
+        target.configure(_provider(), dry_run=True, log=lambda m: None)
+    assert not models.exists()
