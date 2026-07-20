@@ -166,6 +166,22 @@ warning).
 - No credentials are sent over the network by `byop` itself; it only writes
   local config files and keychain entries.
 
+## Behavioral notes
+
+A few choices `byop` makes for you, so they aren't surprising:
+
+- **Edit Predictions (`edit_predictions`)** — when enabled, `byop` writes
+  `"mode": "eager"` and `"allow_data_collection": "no"`. `eager` means Zed
+  *auto-accepts* completions from your provider (no manual confirm step); switch
+  it to `"on"|"off"` or remove the block if you'd rather review each suggestion.
+  `allow_data_collection: "no"` opts out of any edit-telemetry sharing.
+- **First model is the default** — wherever a single model is required (Agent,
+  Inline Assistant, commit messages, thread summaries), the **first** model you
+  configure is used.
+- **Re-running overwrites feature blocks** — `agent`, `inline_assistant_model`,
+  and `edit_predictions` are set to the currently selected provider on every
+  run. They are merged, not appended, so stale provider references are replaced.
+
 ## Troubleshooting
 
 | Symptom | Fix |
@@ -205,6 +221,22 @@ Implement a class with the `Target` interface
 asks whether to configure/install it, and wires the provider through your
 `configure` method. A commented `ClaudeTarget` template is already present in
 the registry.
+
+## Roadmap
+
+The multi-target architecture is the point: `byop` is built to wire *any* tool
+that accepts an OpenAI-compatible endpoint. Today the shipped targets are:
+
+- **Zed** (`zed`) — fully implemented.
+- **py.dev / Pi** (`py`) — fully implemented.
+
+Planned (extension point ready, not yet implemented):
+
+- **Claude Code** (`claude`) — template stubbed in the registry.
+- **Hermes / OpenCode** and other agent CLIs that consume `models.json`-style
+  provider configs.
+
+Contributions adding a target are a single module + one registry line.
 
 ## Development
 
