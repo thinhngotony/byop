@@ -15,5 +15,9 @@ htmlcov/
 .venv/
 venv/
 
+# Cloudflare Worker / Node
+.wrangler/
+node_modules/
+
 # OS
 .DS_Store

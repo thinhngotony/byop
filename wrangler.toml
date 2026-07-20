@@ -1,0 +1,9 @@
+name = "byop"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Bind the worker to its custom domain. Requires the deploy token to have
+# Workers Scripts:Edit, Workers Routes:Edit, and DNS:Edit on the zone.
+routes = [
+  { pattern = "byop.hyberorbit.com", custom_domain = true }
+]

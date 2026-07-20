@@ -49,13 +49,32 @@ writes your secret to disk in plaintext.
 
 ## Installation
 
+### One command (recommended)
+
+```bash
+curl -sfS https://byop.hyberorbit.com/install | sh
+```
+
+This installs the `byop` command (via [pipx](https://pipx.pypa.io) when
+available, pinned to the latest release). Requires macOS and Python 3.11+;
+Homebrew is used to install any missing prerequisites.
+
+> Prefer to read before you run? Inspect the script first:
+> `curl -sfS https://byop.hyberorbit.com/install`
+
+### From source
+
 ```bash
 git clone https://github.com/thinhngotony/byop.git
 cd byop
 python3 -m pip install -e ".[dev]"      # includes test/lint/type tooling
 ```
 
-This installs the `byop` command. Requires Python 3.11+.
+### With pipx (from GitHub)
+
+```bash
+pipx install "git+https://github.com/thinhngotony/byop.git"
+```
 
 ## Usage
 
