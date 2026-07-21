@@ -4,6 +4,7 @@ The wizard is the default mode users hit; this drives it end-to-end with the
 prompt layer mocked out so we exercise ProviderConfig assembly without a TTY.
 """
 
+import json
 import sys
 from pathlib import Path
 from unittest import mock
@@ -24,11 +25,12 @@ def _patch_wizard(ask_seq, ask_int_seq, confirm_seq, secret="sk-test123"):
 
 def test_run_wizard_builds_provider_and_prefs():
     ask = [
-        "MyProvider",                 # provider name
+        "",                          # paste prompt (blank -> per-field)
+        "MyProvider",                # provider name
         "https://api.example.com/v1",  # api base url
-        "my-model",                   # model id
-        "",                           # display name (blank)
-        "",                           # reasoning effort (blank)
+        "my-model",                  # model id
+        "",                          # display name (blank)
+        "",                          # reasoning effort (blank)
     ]
     ask_int = [128000, 32000]
     confirm = [
@@ -63,6 +65,7 @@ def test_run_wizard_builds_provider_and_prefs():
 
 def test_run_wizard_multiple_models():
     ask = [
+        "",                          # paste prompt (blank)
         "MyProvider",
         "https://api.example.com/v1",
         "m1", "", "",   # model 1: id, display, reasoning
@@ -83,6 +86,7 @@ def test_run_wizard_multiple_models():
 
 def test_run_wizard_keychain_opt_out():
     ask = [
+        "",                          # paste prompt
         "MyProvider",
         "https://api.example.com/v1",
         "my-model", "", "",
@@ -99,3 +103,59 @@ def test_run_wizard_keychain_opt_out():
         _, prefs = wizard.run_wizard()
 
     assert prefs == {"use_keychain": False, "use_env": True}
+
+
+# ----------------------------------------------------------------------
+# Paste-path coverage
+# ----------------------------------------------------------------------
+def test_run_wizard_accepts_full_paste():
+    """Full JSON paste should skip all field prompts."""
+    paste = json.dumps(
+        {
+            "provider_name": "HyberOrbit",
+            "api_url": "https://api.example.com/v1",
+            "api_key": "sk-12345678",
+            "models": [{"name": "hy3"}],
+        },
+        indent=2,
+    )
+    ask = [paste]  # only the paste prompt is asked
+    ask_int = []
+    confirm = [
+        True, True, False, False, False, True, False,
+        # default_agent, inline_assistant, commit_message, thread_summary,
+        # edit_predictions, use_keychain, use_env
+    ]
+    p_ask, p_secret, p_int, p_confirm = _patch_wizard(ask, ask_int, confirm)
+    with p_ask, p_secret, p_int, p_confirm:
+        provider, prefs = wizard.run_wizard()
+
+    assert provider.provider_name == "HyberOrbit"
+    assert provider.api_url == "https://api.example.com/v1"
+    assert provider.api_key == "sk-12345678"
+    assert [m.name for m in provider.models] == ["hy3"]
+    assert prefs["use_keychain"] is True
+    assert prefs["use_env"] is False
+
+
+def test_run_wizard_falls_back_to_secret_prompt_when_paste_missing_key():
+    """Partial paste (no api_key) must still ask for the key via ask_secret."""
+    paste = json.dumps(
+        {
+            "provider_name": "HyberOrbit",
+            "api_url": "https://api.example.com/v1",
+            "models": [{"name": "hy3"}],
+        },
+        indent=2,
+    )
+    ask = [paste]
+    ask_int = []
+    confirm = [
+        True, True, False, False, False, True, False,
+    ]
+    p_ask, p_secret, p_int, p_confirm = _patch_wizard(
+        ask, ask_int, confirm, secret="sk-filled-in"
+    )
+    with p_ask, p_secret, p_int, p_confirm:
+        provider, _ = wizard.run_wizard()
+    assert provider.api_key == "sk-filled-in"

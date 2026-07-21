@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from . import default_model_capabilities, prompt
 from .config import ModelConfig, ProviderConfig
+from .paste import REQUIRED_KEYS, looks_like_provider_paste, parse_provider_paste
 
 
 def _ask_models(provider_display: str) -> list[ModelConfig]:
@@ -66,19 +67,59 @@ def run_wizard() -> tuple[ProviderConfig, dict]:
     chosen key-storage preferences (``use_keychain`` / ``use_env``).
     """
 
-    prompt.header("byop — Custom LLM provider setup for Zed")
+    prompt.header("byop — Custom LLM provider setup")
     prompt.info(
-        "This wizard installs/upgrades Zed and wires a custom "
-        "OpenAI-compatible provider into it."
+        "This wizard installs/upgrades the supported AI coding tools and wires "
+        "a custom OpenAI-compatible provider into them."
     )
 
-    provider_name = prompt.ask("Provider name (e.g. 'HyberOrbit')")
-    api_url = prompt.ask(
-        "API base URL (e.g. 'https://api.example.com/v1')"
+    # First prompt: paste JSON or press Enter to fill fields. We try to
+    # detect a paste heuristically (multi-line, parseable JSON), and then
+    # only ask for fields the paste didn't supply.
+    prefill: ProviderConfig | None = None
+    missing: list[str] = []
+    pasted = prompt.ask(
+        "Paste provider JSON (or press Enter to fill in fields one at a time)",
+        default="",
+        allow_empty=True,
     )
-    api_key = prompt.ask_secret("API key")
+    if pasted and looks_like_provider_paste(pasted):
+        try:
+            prefill, missing = parse_provider_paste(pasted)
+        except ValueError as exc:
+            prompt.warn(f"Could not parse pasted JSON ({exc}) — "
+                        f"falling back to per-field prompts.")
+            prefill = None
+            missing = list(REQUIRED_KEYS)
 
-    models = _ask_models(provider_name)
+    provider_name = (
+        prefill.provider_name
+        if prefill is not None and "provider_name" not in missing
+        else prompt.ask("Provider name (e.g. 'HyberOrbit')")
+    )
+
+    if prefill is not None and "api_url" not in missing:
+        api_url = prefill.api_url
+    else:
+        api_url = prompt.ask(
+            "API base URL (e.g. 'https://api.example.com/v1')"
+        )
+
+    api_key = (
+        prefill.api_key
+        if prefill is not None
+        and "api_key" not in missing
+        and prefill.api_key != "sk-placeholder-key"
+        else prompt.ask_secret("API key")
+    )
+
+    if (prefill is not None
+            and "models" not in missing
+            and prefill.models
+            and prefill.models[0].name != "placeholder"):
+        models = list(prefill.models)
+    else:
+        models = _ask_models(provider_name)
 
     prompt.header("Feature wiring")
     prompt.info(
