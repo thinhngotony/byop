@@ -147,3 +147,28 @@ def test_parse_provider_paste_rejects_model_missing_name():
     import pytest
     with pytest.raises(ValueError, match="missing 'name'"):
         parse_provider_paste(text)
+
+
+def test_parse_provider_paste_silently_drops_non_dict_model_entries():
+    """A string or number in the models list is skipped (no crash)."""
+    text = json.dumps({
+        "provider_name": "P",
+        "api_url": "https://api.example.com/v1",
+        "api_key": "sk-12345678",
+        "models": ["ignored", 123, {"name": "kept"}],
+    })
+    cfg, missing = parse_provider_paste(text)
+    assert missing == []
+    assert [m.name for m in cfg.models] == ["kept"]
+
+
+def test_parse_provider_paste_non_dict_capabilities_become_empty():
+    """If `capabilities` isn't a JSON object, the field defaults to {}."""
+    text = json.dumps({
+        "provider_name": "P",
+        "api_url": "https://api.example.com/v1",
+        "api_key": "sk-12345678",
+        "models": [{"name": "m", "capabilities": "not-a-dict"}],
+    })
+    cfg, _ = parse_provider_paste(text)
+    assert cfg.models[0].capabilities == {}

@@ -31,6 +31,16 @@ def keychain_has(server: str, account: str = "Bearer") -> bool:
     return res.returncode == 0
 
 
+def security_command_ref(server: str, account: str = "Bearer") -> str:
+    """Build the ``!security find-internet-password ...`` shell-out string.
+
+    Targets embed this verbatim in their settings JSON for the ``apiKey``
+    field, so the editor reads the secret at request time without ever
+    persisting plaintext.
+    """
+    return f"!security find-internet-password -s {server} -a {account} -w"
+
+
 def keychain_get(server: str, account: str = "Bearer") -> str | None:
     """Return the stored secret, or ``None`` if not present."""
 

@@ -155,3 +155,83 @@ def test_cli_config_file_missing_key_rejected(monkeypatch, tmp_path):
     rc = cli.main(["--config-file", str(cfg), "--target", "zed"])
     # api_key missing -> CLI exits 2.
     assert rc == 2
+
+
+def test_cli_conflict_prompt_in_non_interactive_rejected(monkeypatch, tmp_path, capsys):
+    """--conflict prompt is meaningless without a TTY and must exit 2."""
+    cfg = tmp_path / "provider.json"
+    cfg.write_text(json.dumps({
+        "provider_name": "P",
+        "api_url": "https://api.example.com/v1",
+        "api_key": "sk-x",
+        "models": [{"name": "m1"}],
+    }))
+
+    class FT:
+        name = "zed"
+        display_name = "Zed"
+
+        def is_installed(self):
+            return True
+
+        def install(self, log=print):
+            pass
+
+        def configure(self, provider, **kw):
+            pass
+
+        def current_provider_names(self):
+            return []
+
+    import byop.core.targets as tmod
+
+    monkeypatch.setattr(tmod, "available_targets", lambda settings_path=None: [FT()])
+    monkeypatch.setattr(tmod, "detect_installed", lambda targets: targets)
+
+    rc = cli.main(["--config-file", str(cfg), "--conflict", "prompt", "--dry-run"])
+    assert rc == 2
+    captured = capsys.readouterr()
+    assert "--conflict prompt requires an interactive TTY" in captured.err
+
+
+def test_cli_conflict_append_against_single_provider_rejected(monkeypatch, tmp_path, capsys):
+    """--conflict append must refuse zed/claude (single-provider targets)."""
+    cfg = tmp_path / "provider.json"
+    cfg.write_text(json.dumps({
+        "provider_name": "P",
+        "api_url": "https://api.example.com/v1",
+        "api_key": "sk-x",
+        "models": [{"name": "m1"}],
+    }))
+
+    class FT:
+        name = "zed"
+        display_name = "Zed"
+        existing = ["P"]
+
+        def is_installed(self):
+            return True
+
+        def install(self, log=print):
+            pass
+
+        def configure(self, provider, **kw):
+            pass
+
+        def current_provider_names(self):
+            return list(self.existing)
+
+    import byop.core.targets as tmod
+
+    monkeypatch.setattr(tmod, "available_targets", lambda settings_path=None: [FT()])
+    monkeypatch.setattr(tmod, "detect_installed", lambda targets: targets)
+
+    rc = cli.main([
+        "--config-file", str(cfg),
+        "--conflict", "append",
+        "--target", "zed",
+        "--dry-run",
+    ])
+    assert rc == 2
+    captured = capsys.readouterr()
+    assert "append is not supported for" in captured.err

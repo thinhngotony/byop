@@ -9,6 +9,7 @@ from byop.core.conflict import (
     ConflictAction,
     default_conflict_action,
     resolve_conflict_action,
+    supports_append,
 )
 
 
@@ -111,4 +112,13 @@ def test_resolve_invalid_flag_raises():
             "zed", has_collision=True, interactive=False,
             conflict_flag="bogus",
         )
+
+
+def test_supports_append_only_for_multi_provider_targets():
+    # py.dev and omp store many providers; zed/claude have one.
+    assert supports_append("py") is True
+    assert supports_append("omp") is True
+    assert supports_append("zed") is False
+    assert supports_append("claude") is False
+    assert supports_append("unknown") is False
 

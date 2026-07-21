@@ -76,12 +76,8 @@ class PyTarget:
         """
 
         server = provider.keychain_server()
-        account = "Bearer"
-        if kc.keychain_has(server, account):
-            return (
-                f"!security find-internet-password -s {server} "
-                f"-a {account} -w"
-            )
+        if kc.keychain_has(server):
+            return kc.security_command_ref(server)
         return provider.api_key
 
     # ------------------------------------------------------------------

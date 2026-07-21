@@ -246,26 +246,29 @@ byop/
 │   ├── settings.py        # JSONC-aware read/merge/write for Zed
 │   ├── keychain.py        # macOS keychain + env-var key storage
 │   ├── zed.py             # Zed install/upgrade (brew + direct download)
-│   ├── wizard.py          # interactive prompts
+│   ├── wizard.py          # interactive prompts (accepts pasted JSON)
 │   ├── prompt.py          # rich-based prompts (stdlib fallback)
+│   ├── conflict.py        # ConflictAction enum + resolve_conflict_action()
+│   ├── paste.py           # detect/parse pasted provider JSON
 │   ├── apply.py           # legacy Zed helper (delegates to targets)
 │   └── targets/           # one module per app
 │       ├── base.py        # Target protocol
 │       ├── zed.py         # ZedTarget
 │       ├── py.py          # PyTarget (py.dev)
+│       ├── claude.py      # ClaudeTarget (Claude Code)
+│       ├── omp.py         # OmpTarget (subclass of PyTarget)
 │       └── registry.py    # ALL_TARGETS + extension point
 └── tests/                 # unit + integration (pytest)
 ```
 
-## Adding a new target (e.g. Claude Code)
+## Adding a new target
 
 Implement a class with the `Target` interface
 (`is_installed`, `install`, `configure`, `current_provider_names`) in
 `byop/core/targets/<name>.py`, then register it in
 `byop/core/targets/registry.py::ALL_TARGETS`. The CLI automatically detects it,
 asks whether to configure/install it, and wires the provider through your
-`configure` method. A commented `ClaudeTarget` template is already present in
-the registry.
+`configure` method.
 
 ## Roadmap
 
@@ -274,10 +277,10 @@ that accepts an OpenAI-compatible endpoint. Today the shipped targets are:
 
 - **Zed** (`zed`) — fully implemented.
 - **py.dev / Pi** (`py`) — fully implemented.
+- **Claude Code** (`claude`) — fully implemented.
+- **Oh My Pi / omp** (`omp`) — fully implemented.
 
-Planned (extension point ready, not yet implemented):
-
-- **Claude Code** (`claude`) — template stubbed in the registry.
+If you want to add another target, the registry is the only place to touch.
 - **Hermes / OpenCode** and other agent CLIs that consume `models.json`-style
   provider configs.
 

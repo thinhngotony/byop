@@ -91,8 +91,13 @@ def _provider_from_args(args: argparse.Namespace) -> ProviderConfig:
     )
 
 
-def _parse_models(values: list[str]):
-    return list(values)
+class _ConflictRejected(Exception):
+    """Raised when a --conflict value is incompatible with a target.
+
+    Always maps to CLI exit code 2 (user error). Caught by main() and turned
+    into a printed error and an early abort before the rest of the targets
+    run with stale state.
+    """
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -281,7 +286,9 @@ def main(argv: list[str] | None = None) -> int:
             prompt.error(
                 "--config-file is missing required fields: "
                 + ", ".join(missing)
-                + ". Provide them via flags or paste them in the wizard."
+                + ". Provide them via --provider/--api-url/--api-key/--model "
+                + "flags, or re-run byop without --config-file to fill them "
+                + "in interactively."
             )
             return 2
         non_interactive = True
@@ -320,10 +327,28 @@ def main(argv: list[str] | None = None) -> int:
 
     # ---- Per-target conflict resolution ----------------------------------
     # CLI override for the conflict action: replace/skip/append/prompt.
+    # 'prompt' is meaningful only when stdin is a TTY; otherwise it would
+    # silently downgrade to the target's default. Catch that here so the
+    # user gets an actionable error rather than a surprise auto-replace.
+    if non_interactive and args.conflict == "prompt":
+        prompt.error(
+            "--conflict prompt requires an interactive TTY. "
+            "Pass --conflict replace|skip|append for non-interactive runs."
+        )
+        return 2
     cli_flag = args.conflict if args.conflict and args.conflict != "prompt" else None
 
     def _pick(target) -> str:
         """Resolve the conflict action for one target, prompting if needed."""
+        # Only py/omp support multiple concurrent providers; refuse --conflict
+        # append against single-provider targets (zed/claude) so the user
+        # gets a clear error instead of a silent overwrite.
+        if cli_flag == "append" and not supports_append(target.name):
+            raise _ConflictRejected(
+                f"--conflict append is not supported for {target.display_name} "
+                f"(only py/omp accept multi-provider entries). "
+                f"Use --conflict replace or --conflict skip."
+            )
         existing_names = target.current_provider_names()
         has_collision = bool(existing_names) and provider.provider_name in existing_names
         decided = resolve_conflict_action(
@@ -361,6 +386,9 @@ def main(argv: list[str] | None = None) -> int:
         except RuntimeError as exc:
             prompt.error(f"{target.display_name}: {exc}")
             success = False
+        except _ConflictRejected as exc:
+            prompt.error(str(exc))
+            return 2
 
     if args.dry_run:
         prompt.success("Dry run complete. No changes were made.")

@@ -68,12 +68,8 @@ class ClaudeTarget:
         (e.g. --no-keychain was passed by the caller).
         """
         server = provider.keychain_server()
-        account = "Bearer"
-        if kc.keychain_has(server, account):
-            return (
-                f"!security find-internet-password -s {server} "
-                f"-a {account} -w"
-            )
+        if kc.keychain_has(server):
+            return kc.security_command_ref(server)
         return provider.api_key
 
     def build_fragment(self, provider: ProviderConfig) -> dict:
