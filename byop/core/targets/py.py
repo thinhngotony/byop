@@ -140,6 +140,7 @@ class PyTarget:
         dry_run: bool = False,
         use_keychain: bool = True,
         use_env: bool = False,
+        conflict_action: str | None = None,
         log: Callable[[str], None] = print,
     ) -> None:
         errors = provider.validate()
@@ -152,6 +153,29 @@ class PyTarget:
             log("[dry-run] py.dev would write the following models.json fragment:")
             log(json.dumps(fragment, indent=2))
             return
+
+        # Conflict resolution: skip on idempotent re-run, append with a
+        # numeric suffix when asked. Default behavior is overwrite — the
+        # caller (the CLI) decides which one to pass.
+        existing = self._load()
+        existing_providers = (existing.get("providers") or {})
+        name_to_write = provider.provider_name
+        if provider.provider_name in existing_providers:
+            if conflict_action == "skip":
+                log(
+                    f"Skip: py.dev already has {provider.provider_name}; "
+                    f"leaving models.json untouched."
+                )
+                return
+            if conflict_action == "append":
+                i = 2
+                while f"{provider.provider_name}_{i}" in existing_providers:
+                    i += 1
+                name_to_write = f"{provider.provider_name}_{i}"
+                log(
+                    f"Append: py.dev already has {provider.provider_name}; "
+                    f"writing under {name_to_write}."
+                )
 
         # Ensure the secret lives in the keychain so we can reference it via a
         # secure ``!command`` (launch-independent) instead of embedding it.
@@ -173,9 +197,7 @@ class PyTarget:
         self.models_path.parent.mkdir(parents=True, exist_ok=True)
         current = self._load()
         providers = current.setdefault("providers", {})
-        providers[provider.provider_name] = fragment["providers"][
-            provider.provider_name
-        ]
+        providers[name_to_write] = fragment["providers"][provider.provider_name]
         self._write(current)
         log(f"Updated py.dev models at {self.models_path}")
         if fragment["providers"][provider.provider_name]["apiKey"].startswith("!"):

@@ -68,6 +68,62 @@ def test_zed_configure_writes_and_merges(tmp_path):
     assert ek.call_args.kwargs["server"] == "https://api.example.com/v1"
 
 
+def test_zed_skip_when_same_provider_and_url(tmp_path):
+    """Re-run with same name + same api_url + conflict_action='skip' must not write."""
+    settings = tmp_path / "settings.json"
+    sett = __import__("byop.core.settings", fromlist=["settings"])
+    # Pre-populate as if byop had already configured this provider.
+    provider = _provider()  # ExampleProvider / https://api.example.com/v1
+    target = ZedTarget(settings_path=settings)
+    with mock.patch.object(target, "install"), \
+         mock.patch("byop.core.targets.zed.kc.ensure_key",
+                    return_value=["k:x"]):
+        target.configure(provider, log=lambda m: None)
+    first = settings.read_text()
+
+    # Second invocation with skip; track sett.write_path calls.
+    writes = {"count": 0}
+    real_write_path = sett.write_path
+
+    def _tracking(path, data):
+        writes["count"] += 1
+        return real_write_path(path, data)
+
+    with mock.patch.object(target, "install"), \
+         mock.patch("byop.core.targets.zed.sett.write_path", _tracking), \
+         mock.patch("byop.core.targets.zed.kc.ensure_key",
+                    return_value=["k:x"]) as ek:
+        target.configure(provider, conflict_action="skip", log=lambda m: None)
+    assert writes["count"] == 0, "skip on idempotent re-run must not write settings"
+    ek.assert_called_once()  # but keychain is still ensured
+    assert settings.read_text() == first  # file contents unchanged
+
+
+def test_zed_no_skip_when_url_differs(tmp_path):
+    """Same name but different api_url must NOT skip — that's a real conflict."""
+    settings = tmp_path / "settings.json"
+    sett = __import__("byop.core.settings", fromlist=["settings"])
+    # Write a stale entry with a different api_url.
+    sett.write_path(settings, {
+        "language_models": {
+            "openai_compatible": {
+                "ExampleProvider": {"api_url": "https://other.example.com/v1",
+                                    "available_models": []}
+            }
+        }
+    })
+    target = ZedTarget(settings_path=settings)
+    with mock.patch.object(target, "install"), \
+         mock.patch("byop.core.targets.zed.kc.ensure_key",
+                    return_value=["k:x"]):
+        target.configure(_provider(), conflict_action="skip", log=lambda m: None)
+    data = sett.load_path(settings)
+    # api_url was overwritten because the URLs differ.
+    assert data["language_models"]["openai_compatible"]["ExampleProvider"][
+        "api_url"] == "https://api.example.com/v1"
+
+
+
 def test_zed_dry_run_does_not_write(tmp_path):
     settings = tmp_path / "settings.json"
     target = ZedTarget(settings_path=settings)
@@ -159,3 +215,64 @@ def test_py_dry_run_does_not_write(tmp_path):
     with mock.patch.object(target, "install"):
         target.configure(_provider(), dry_run=True, log=lambda m: None)
     assert not models.exists()
+
+
+def test_py_append_uses_numeric_suffix(tmp_path):
+    """On collision, append under ProviderName_2 (skipping already-taken suffixes)."""
+    import json as _json
+    models = tmp_path / "models.json"
+    models.write_text(_json.dumps({
+        "providers": {"ExampleProvider": {"baseUrl": "x", "api": "openai-completions"}}
+    }))
+    target = PyTarget(models_path=models)
+    with mock.patch.object(target, "install"), \
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
+        target.configure(_provider(), conflict_action="append", log=lambda m: None)
+    data = _json.loads(models.read_text())
+    assert "ExampleProvider" in data["providers"]
+    assert "ExampleProvider_2" in data["providers"]
+    # The appended entry has the freshly configured api_url, not the stale one.
+    assert data["providers"]["ExampleProvider_2"]["baseUrl"] == \
+        "https://api.example.com/v1"
+
+
+def test_py_append_picks_next_available_suffix(tmp_path):
+    """If _2 is also taken, jump to _3."""
+    import json as _json
+    models = tmp_path / "models.json"
+    models.write_text(_json.dumps({
+        "providers": {
+            "ExampleProvider": {"baseUrl": "x"},
+            "ExampleProvider_2": {"baseUrl": "x"},
+        }
+    }))
+    target = PyTarget(models_path=models)
+    with mock.patch.object(target, "install"), \
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
+        target.configure(_provider(), conflict_action="append", log=lambda m: None)
+    data = _json.loads(models.read_text())
+    assert "ExampleProvider_3" in data["providers"]
+
+
+def test_py_skip_when_provider_exists(tmp_path):
+    """conflict_action='skip' must not rewrite an existing provider entry."""
+    import json as _json
+    models = tmp_path / "models.json"
+    sentinel = {"baseUrl": "x", "api": "openai-completions"}
+    models.write_text(_json.dumps({"providers": {"ExampleProvider": sentinel}}))
+    target = PyTarget(models_path=models)
+    writes = {"count": 0}
+    real_write = target._write
+
+    def tracking(data):
+        writes["count"] += 1
+        return real_write(data)
+
+    with mock.patch.object(target, "install"), \
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True), \
+         mock.patch.object(target, "_write", tracking):
+        target.configure(_provider(), conflict_action="skip", log=lambda m: None)
+    assert writes["count"] == 0
+    data = _json.loads(models.read_text())
+    # Original block untouched.
+    assert data["providers"]["ExampleProvider"] == sentinel

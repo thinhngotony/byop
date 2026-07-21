@@ -51,6 +51,7 @@ class ZedTarget:
         dry_run: bool = False,
         use_keychain: bool = True,
         use_env: bool = False,
+        conflict_action: str | None = None,
         log: Callable[[str], None] = print,
     ) -> None:
         errors = provider.validate()
@@ -68,6 +69,34 @@ class ZedTarget:
                 f"{provider.keychain_server()}"
             )
             return
+
+        # When the caller chose 'skip' and there's an existing provider entry
+        # with the *same* api_url, treat the run as a no-op (the merge would
+        # produce an identical fragment anyway). We still ensure the keychain
+        # entry — that's a maintenance step, not a state change.
+        if conflict_action == "skip":
+            existing = sett.load_path(self.settings_path)
+            existing_block = (
+                existing.get("language_models", {})
+                .get("openai_compatible", {})
+                .get(provider.provider_name)
+            )
+            if isinstance(existing_block, dict) and existing_block.get(
+                "api_url"
+            ) == provider.normalized_api_url():
+                kc.ensure_key(
+                    server=provider.keychain_server(),
+                    api_key=provider.api_key,
+                    env_var=provider.env_var_name(),
+                    log=log,
+                    use_keychain=use_keychain,
+                    use_env=use_env,
+                )
+                log(
+                    f"Skip: {provider.provider_name} already configured with "
+                    f"the same api_url."
+                )
+                return
 
         current = sett.load_path(self.settings_path)
         merged = sett.merge(current, fragment)

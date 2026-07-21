@@ -41,6 +41,7 @@ class Target(Protocol):
         dry_run: bool = False,
         use_keychain: bool = True,
         use_env: bool = False,
+        conflict_action: str | None = None,
         log: Callable[[str], None] = print,
     ) -> None: ...
 
