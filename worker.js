@@ -46,7 +46,7 @@ Then run:
 
 Documentation: https://github.com/${REPO}
 `,
-        { headers: { "Content-Type": "text/plain" } },
+        { headers: { "Content-Type": "text/plain;charset=utf-8" } },
       );
     }
 
@@ -62,13 +62,13 @@ Documentation: https://github.com/${REPO}
       if (!response.ok) {
         return new Response(`Upstream error: ${response.status}`, {
           status: 502,
-          headers: { "Content-Type": "text/plain" },
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
         });
       }
       return new Response(response.body, {
         status: response.status,
         headers: {
-          "Content-Type": "text/plain",
+          "Content-Type": "text/plain;charset=utf-8",
           "Cache-Control": "public, max-age=60",
           "Access-Control-Allow-Origin": "*",
         },
@@ -76,7 +76,7 @@ Documentation: https://github.com/${REPO}
     } catch {
       return new Response("Failed to fetch upstream resource", {
         status: 502,
-        headers: { "Content-Type": "text/plain" },
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
       });
     }
   },
