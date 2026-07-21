@@ -74,6 +74,12 @@ class ZedTarget:
         # with the *same* api_url, treat the run as a no-op (the merge would
         # produce an identical fragment anyway). We still ensure the keychain
         # entry — that's a maintenance step, not a state change.
+        #
+        # Note: 'skip' is taken only when the existing entry already points at
+        # the same provider name AND api_url. If the name matches but the url
+        # has changed (e.g. an api endpoint migration) we fall through and
+        # let the merge path update api_url in place — preserving the user
+        # expectation that 'skip' means "idempotent re-run".
         if conflict_action == "skip":
             existing = sett.load_path(self.settings_path)
             existing_block = (
@@ -99,6 +105,21 @@ class ZedTarget:
                 return
 
         current = sett.load_path(self.settings_path)
+        existing_url = (
+            current.get("language_models", {})
+            .get("openai_compatible", {})
+            .get(provider.provider_name, {})
+            .get("api_url")
+        )
+        if (
+            existing_url
+            and existing_url != provider.normalized_api_url()
+            and not (conflict_action == "skip")
+        ):
+            log(
+                f"Note: {provider.provider_name} api_url changed "
+                f"({existing_url} -> {provider.normalized_api_url()})."
+            )
         merged = sett.merge(current, fragment)
         sett.write_path(self.settings_path, merged)
         log(f"Updated Zed settings at {self.settings_path}")

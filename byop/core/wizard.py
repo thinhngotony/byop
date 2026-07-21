@@ -107,16 +107,11 @@ def run_wizard() -> tuple[ProviderConfig, dict]:
 
     api_key = (
         prefill.api_key
-        if prefill is not None
-        and "api_key" not in missing
-        and prefill.api_key != "sk-placeholder-key"
+        if prefill is not None and "api_key" not in missing
         else prompt.ask_secret("API key")
     )
 
-    if (prefill is not None
-            and "models" not in missing
-            and prefill.models
-            and prefill.models[0].name != "placeholder"):
+    if prefill is not None and "models" not in missing and prefill.models:
         models = list(prefill.models)
     else:
         models = _ask_models(provider_name)

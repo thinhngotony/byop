@@ -3,6 +3,10 @@
 Used by the interactive wizard: when the first prompt is a multi-line blob
 that looks like JSON, parse it into a :class:`ProviderConfig` instead of
 asking each field one by one.
+
+We accept strict JSON *and* JSONC (with ``//`` line comments and ``/* ... */``
+block comments) so users can copy a fragment out of an existing
+``settings.json`` without manually stripping comments first.
 """
 
 from __future__ import annotations
@@ -17,16 +21,74 @@ from .config import ModelConfig, ProviderConfig
 _PASTE_HINT = re.compile(r"\{[\s\S]*\}")
 
 
+def _strip_jsonc_comments(text: str) -> str:
+    """Remove C-style comments while respecting quoted strings.
+
+    Matches the same minimal grammar used elsewhere in byop:
+      ``// line comments`` and ``/* block comments */``, both stripped
+      only when not inside a string literal. Trailing commas are not
+      handled here — those would need a full JSONC parser and aren't
+      common in pasted snippets.
+    """
+    out: list[str] = []
+    i, n = 0, len(text)
+    in_str = False
+    quote = ""
+    while i < n:
+        c = text[i]
+        if in_str:
+            out.append(c)
+            if c == "\\" and i + 1 < n:
+                out.append(text[i + 1])
+                i += 2
+                continue
+            if c == quote:
+                in_str = False
+            i += 1
+            continue
+        if c in ('"', "'"):
+            in_str = True
+            quote = c
+            out.append(c)
+            i += 1
+            continue
+        if c == "/" and i + 1 < n and text[i + 1] == "/":
+            while i < n and text[i] != "\n":
+                i += 1
+            continue
+        if c == "/" and i + 1 < n and text[i + 1] == "*":
+            i += 2
+            while i + 1 < n and not (text[i] == "*" and text[i + 1] == "/"):
+                i += 1
+            i += 2  # skip the closing */
+            continue
+        out.append(c)
+        i += 1
+    return "".join(out)
+
+
+def _safe_loads(text: str) -> Any:
+    """Load JSON, transparently stripping JSONC comments first."""
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return json.loads(_strip_jsonc_comments(text))
+
+
 def looks_like_provider_paste(text: str) -> bool:
-    """True if ``text`` looks like the user's provider JSON rather than a one-field answer."""
+    """True if ``text`` looks like the user's provider JSON rather than a one-field answer.
+
+    Accepts strict JSON and JSONC (with comments); both are sanitized before
+    the actual parse in :func:`parse_provider_paste`.
+    """
     stripped = text.strip()
     if "\n" not in stripped:
         return False
     if not _PASTE_HINT.search(stripped):
         return False
     try:
-        json.loads(stripped)
-    except json.JSONDecodeError:
+        _safe_loads(stripped)
+    except (json.JSONDecodeError, ValueError):
         return False
     return True
 
@@ -63,17 +125,37 @@ def _coerce_model(raw: dict[str, Any]) -> ModelConfig:
 # Field names the user must supply before we can actually configure anything.
 REQUIRED_KEYS = ("provider_name", "api_url", "api_key", "models")
 
+# Sentinel object used to mark fields that were absent from the paste. We
+# deliberately do NOT bake placeholder strings into the returned ProviderConfig
+# — anything caller-side can substring-match against would also be a real
+# value a user could legitimately paste (the prior "sk-placeholder-key"
+# approach was vulnerable to that).
+_MISSING = object()
+
+
+def _missing_str() -> str:
+    """Distinct, unguessable placeholder string used only when no other value
+    is available. Callers must check the ``missing`` list — never compare
+    against the literal text — before considering a field "present".
+    """
+    return "byop:missing-field"
+
 
 def parse_provider_paste(text: str) -> tuple[ProviderConfig, list[str]]:
     """Parse a pasted JSON provider description.
 
     Returns ``(ProviderConfig, missing_fields)``. The config has placeholder
     values for any missing field so callers can identify which fields to
-    prompt for. ``missing_fields`` is empty when the paste was complete.
+    prompt for. ``missing_fields`` is the authoritative "what's missing"
+    list — the placeholder string is only there so the dataclass is still
+    constructible.
+
+    JSONC (with ``//`` and ``/* */`` comments) is accepted so users can paste
+    a fragment verbatim from an existing settings.json file.
     """
     try:
-        data = json.loads(text)
-    except json.JSONDecodeError as exc:
+        data = _safe_loads(text)
+    except (json.JSONDecodeError, ValueError) as exc:
         raise ValueError(f"Could not parse pasted JSON: {exc}") from exc
     if not isinstance(data, dict):
         raise ValueError("Pasted content must be a JSON object.")
@@ -95,16 +177,16 @@ def parse_provider_paste(text: str) -> tuple[ProviderConfig, list[str]]:
     models: list[ModelConfig]
     if not isinstance(raw_models, list) or not raw_models:
         missing.append("models")
-        models = [ModelConfig(name="placeholder")]
+        models = [ModelConfig(name=_missing_str())]
     else:
         models = [_coerce_model(m) for m in raw_models if isinstance(m, dict)]
         if not models:
             missing.append("models")
 
     cfg = ProviderConfig(
-        provider_name=provider_name or "PlaceholderProvider",
-        api_url=api_url or "https://example.invalid/v1",
-        api_key=api_key or "sk-placeholder-key",
+        provider_name=provider_name or _missing_str(),
+        api_url=api_url or _missing_str(),
+        api_key=api_key or _missing_str(),
         models=models,
     )
     return cfg, missing

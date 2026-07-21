@@ -29,13 +29,19 @@ def test_keychain_has_true():
 
 
 def test_keychain_has_false():
-    with mock.patch.object(kc, "_run", _fake_run(1)):
+    # `security` exits 44 ("item not found") when the entry doesn't exist.
+    with mock.patch.object(kc, "_run", _fake_run(kc._SECURITY_ITEM_NOT_FOUND)):
         assert kc.keychain_has("https://x/v1") is False
 
 
 def test_keychain_get_returns_secret():
     with mock.patch.object(kc, "_run", _fake_run(0, "sk-abc\n")):
         assert kc.keychain_get("https://x/v1") == "sk-abc"
+
+
+def test_keychain_get_returns_none_on_item_not_found():
+    with mock.patch.object(kc, "_run", _fake_run(kc._SECURITY_ITEM_NOT_FOUND)):
+        assert kc.keychain_get("https://x/v1") is None
 
 
 def test_keychain_set_calls_add_and_delete():
@@ -118,3 +124,82 @@ def test_ensure_key_keychain_only(tmp_path, monkeypatch):
         notes = kc.ensure_key("https://x/v1", "sk-1", "PROV_API_KEY")
     assert "keychain:https://x/v1" in notes
     assert stored["key"] == "sk-1"
+
+
+def test_keychain_has_raises_on_unexpected_exit_code():
+    """Anything other than 0 or 44 ('not found') should surface stderr."""
+
+    def _run(cmd, *a, **k):
+        class R:
+            pass
+
+        r = R()
+        r.returncode = 50  # e.g. keychain locked
+        r.stdout = ""
+        r.stderr = "User interaction is not allowed."
+        return r
+
+    import pytest
+
+    with mock.patch.object(kc, "_run", _run), \
+         pytest.raises(RuntimeError, match="Keychain lookup failed"):
+        kc.keychain_has("https://api.example.com/v1")
+
+
+def test_keychain_has_returns_false_on_item_not_found():
+    def _run(cmd, *a, **k):
+        class R:
+            pass
+
+        r = R()
+        r.returncode = kc._SECURITY_ITEM_NOT_FOUND
+        r.stderr = ""
+        return r
+
+    with mock.patch.object(kc, "_run", _run):
+        assert kc.keychain_has("https://api.example.com/v1") is False
+
+
+def test_keychain_set_swallows_missing_entry_on_pretend_delete():
+    """A missing prior entry is benign — delete returns 44, set still proceeds."""
+    seen_delete = {"called": False}
+
+    def _run(cmd, *a, **k):
+        class R:
+            pass
+
+        r = R()
+        r.stdout = ""
+        r.stderr = ""
+        if cmd[1] == "delete-internet-password":
+            seen_delete["called"] = True
+            r.returncode = kc._SECURITY_ITEM_NOT_FOUND
+        else:
+            r.returncode = 0
+        return r
+
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as td, \
+         mock.patch.object(kc, "_run", _run), \
+         mock.patch.object(kc, "LOGIN_KEYCHAIN", f"{td}/kc.db"):
+        kc.keychain_set("https://api.example.com/v1", "sk-x")
+    assert seen_delete["called"] is True
+
+
+def test_keychain_delete_raises_on_unexpected_exit_code():
+    """A locked-keychain error during delete should not be silent."""
+    import pytest
+
+    def _run(cmd, *a, **k):
+        class R:
+            pass
+
+        r = R()
+        r.returncode = 50
+        r.stderr = "Keychain locked."
+        return r
+
+    with mock.patch.object(kc, "_run", _run), \
+         pytest.raises(RuntimeError, match="Failed to remove keychain entry"):
+        kc.keychain_delete("https://api.example.com/v1")

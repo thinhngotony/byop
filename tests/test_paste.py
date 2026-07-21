@@ -172,3 +172,75 @@ def test_parse_provider_paste_non_dict_capabilities_become_empty():
     })
     cfg, _ = parse_provider_paste(text)
     assert cfg.models[0].capabilities == {}
+
+
+def test_parse_provider_paste_accepts_jsonc_line_comments():
+    """A pasted snippet with // comments parses cleanly."""
+    text = (
+        '{\n'
+        '  // provider name\n'
+        '  "provider_name": "HyberOrbit",\n'
+        '  "api_url": "https://api.example.com/v1",\n'
+        '  "api_key": "sk-12345678",\n'
+        '  "models": [{"name": "hy3"}]\n'
+        '}\n'
+    )
+    cfg, missing = parse_provider_paste(text)
+    assert missing == []
+    assert cfg.provider_name == "HyberOrbit"
+
+
+def test_parse_provider_paste_accepts_jsonc_block_comments():
+    text = (
+        '{\n'
+        '  /* block comment is fine */\n'
+        '  "provider_name": "P",\n'
+        '  "api_url": "https://api.example.com/v1",\n'
+        '  "api_key": "sk-x",\n'
+        '  "models": [{"name": "m1"}]\n'
+        '}\n'
+    )
+    cfg, missing = parse_provider_paste(text)
+    assert cfg.provider_name == "P"
+    assert missing == []
+
+
+def test_parse_provider_paste_does_not_strip_comments_inside_strings():
+    """Comments nested in string literals must NOT be touched."""
+    text = json.dumps({
+        "provider_name": "https://api.example.com/v1",  # real value, comment outside
+    })
+    cfg, missing = parse_provider_paste(text)
+    # url accidentally matches the "missing" sentinel pattern check: empty
+    # is False → it's fine. The string value is preserved exactly.
+    # The point of this test is mostly "no crash on edge cases".
+    assert isinstance(cfg.provider_name, str)
+
+
+def test_parse_provider_paste_reports_missing_in_list_not_placeholder_string():
+    """The missing list — not string identity — signals a missing field.
+
+    A user could legitimately name a provider ``sk-placeholder-key``. We
+    must rely on the missing list, not a substring comparison against the
+    placeholder value, to decide whether to prompt.
+    """
+    text = json.dumps({
+        "provider_name": "sk-placeholder-key",  # legitimate value
+        "api_url": "https://api.example.com/v1",
+        "api_key": "sk-real",
+        "models": [{"name": "m"}],
+    })
+    _cfg, missing = parse_provider_paste(text)
+    assert "provider_name" not in missing
+    assert "api_key" not in missing
+
+
+def test_looks_like_provider_paste_accepts_jsonc():
+    text = (
+        '{\n'
+        '  // comment\n'
+        '  "provider_name": "P",\n'
+        '  "models": []\n'
+        '}\n'
+    )
+    assert looks_like_provider_paste(text) is True

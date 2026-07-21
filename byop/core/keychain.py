@@ -17,18 +17,35 @@ from pathlib import Path
 
 LOGIN_KEYCHAIN = str(Path.home() / "Library" / "Keychains" / "login.keychain-db")
 
+# `security delete-internet-password` / `security find-internet-password`
+# exit with code 44 when the requested entry does not exist. That's an
+# expected, recoverable condition we treat as a no-op everywhere.
+_SECURITY_ITEM_NOT_FOUND = 44
+
 
 def _run(cmd: list[str]) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, capture_output=True, text=True, check=False)
 
 
 def keychain_has(server: str, account: str = "Bearer") -> bool:
-    """Return True if a matching keychain entry already exists."""
+    """Return True if a matching keychain entry already exists.
+
+    Exits 44 ("item not found") from ``security`` is mapped to False; every
+    other failure is propagated so callers hear about a locked keychain or
+    permission denied instead of silently being told the entry is missing.
+    """
 
     res = _run(
         ["security", "find-internet-password", "-s", server, "-a", account]
     )
-    return res.returncode == 0
+    if res.returncode == 0:
+        return True
+    if res.returncode == _SECURITY_ITEM_NOT_FOUND:
+        return False
+    raise RuntimeError(
+        f"Keychain lookup failed (exit {res.returncode}):\n"
+        + (res.stderr or "")
+    )
 
 
 def security_command_ref(server: str, account: str = "Bearer") -> str:
@@ -49,14 +66,25 @@ def keychain_get(server: str, account: str = "Bearer") -> str | None:
     )
     if res.returncode == 0:
         return res.stdout.strip() or None
-    return None
+    if res.returncode == _SECURITY_ITEM_NOT_FOUND:
+        return None
+    raise RuntimeError(
+        f"Keychain read failed (exit {res.returncode}):\n"
+        + (res.stderr or "")
+    )
 
 
 def keychain_set(server: str, api_key: str, account: str = "Bearer") -> None:
     """Store (or replace) the API key in the login keychain."""
 
-    # Remove any pre-existing entry to avoid duplicates.
-    _run(["security", "delete-internet-password", "-s", server, "-a", account])
+    # Remove any pre-existing entry to avoid duplicates. Failure here is
+    # not necessarily fatal (e.g. nothing to delete), but we surface the
+    # stderr so add-internet-password failures aren't attributed to it.
+    rm = _run(["security", "delete-internet-password", "-s", server, "-a", account])
+    if rm.returncode not in (0, _SECURITY_ITEM_NOT_FOUND):
+        raise RuntimeError(
+            "Failed to remove existing keychain entry:\n" + (rm.stderr or "")
+        )
     # Write to the login keychain without a -T trust restriction (an empty
     # -T path is invalid). The first app to read the entry will prompt for
     # access, which is the secure default.
@@ -80,7 +108,18 @@ def keychain_set(server: str, api_key: str, account: str = "Bearer") -> None:
 
 
 def keychain_delete(server: str, account: str = "Bearer") -> None:
-    _run(["security", "delete-internet-password", "-s", server, "-a", account])
+    """Remove the keychain entry if it exists.
+
+    ``security delete-internet-password`` exits 0 if the entry was removed
+    and a non-fatal "item not found" code (44) if there was nothing to
+    delete. Any other failure is propagated so callers learn about real
+    keychain problems (locked keychain, permission denied).
+    """
+    res = _run(["security", "delete-internet-password", "-s", server, "-a", account])
+    if res.returncode not in (0, _SECURITY_ITEM_NOT_FOUND):
+        raise RuntimeError(
+            "Failed to remove keychain entry:\n" + (res.stderr or "")
+        )
 
 
 def env_var_export_line(env_var: str, api_key: str) -> str:

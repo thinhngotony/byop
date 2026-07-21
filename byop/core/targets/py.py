@@ -8,7 +8,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from .. import keychain as kc
-from ..config import ProviderConfig
+from ..config import ModelConfig, ProviderConfig
 
 AGENT_DIR = Path.home() / ".pi" / "agent"
 MODELS_PATH = AGENT_DIR / "models.json"
@@ -81,8 +81,8 @@ class PyTarget:
         return provider.api_key
 
     # ------------------------------------------------------------------
-    def _model_entry(self, model) -> dict:
-        entry = {
+    def _model_entry(self, model: ModelConfig) -> dict:
+        entry: dict = {
             "id": model.name,
             "name": model.display_name or model.name,
             "contextWindow": model.max_tokens,
@@ -162,6 +162,11 @@ class PyTarget:
                     f"Skip: py.dev already has {provider.provider_name}; "
                     f"leaving models.json untouched."
                 )
+                # Note: unlike ZedTarget, PyTarget 'skip' short-circuits on
+                # provider-name match alone (models.json has no api_url next
+                # to the entry name). The keychain is re-ensured at the
+                # general path below regardless, so a missing/wrong secret
+                # is fixed even on a "skip" run.
                 return
             if conflict_action == "append":
                 i = 2
@@ -172,6 +177,11 @@ class PyTarget:
                     f"Append: py.dev already has {provider.provider_name}; "
                     f"writing under {name_to_write}."
                 )
+                # The appended entry will reference the same keychain server
+                # (derived from api_url) as the original, so they share the
+                # stored secret. That's the intended behavior — same endpoint,
+                # same key — but if the user actually wants a different
+                # secret per entry they should rotate the api_url.
 
         # Ensure the secret lives in the keychain so we can reference it via a
         # secure ``!command`` (launch-independent) instead of embedding it.
