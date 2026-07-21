@@ -89,6 +89,27 @@ def header(title: str) -> None:
         print(f"\n=== {title} ===")
 
 
+def choose_action(target_label: str, options: list[str], default: str = "replace") -> str:
+    """Prompt for one of ``options`` and return it as a string.
+
+    Used by the per-target conflict prompt. ``default`` is returned on empty
+    input (so a stray Enter just picks the safe option).
+    """
+    if _HAS_RICH:
+        from rich.prompt import Prompt as _P
+        return _P.ask(
+            f"  Action for {target_label}",
+            choices=options,
+            default=default,
+        )
+    raw = input(
+        f"  Action for {target_label} [{'/'.join(options)}] ({default}): "
+    ).strip().lower()
+    if raw in options:
+        return raw
+    return default
+
+
 def info(message: str) -> None:
     if _HAS_RICH:
         _console().print(f"[cyan]{message}[/cyan]")

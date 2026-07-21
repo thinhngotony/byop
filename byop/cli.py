@@ -27,6 +27,8 @@ from pathlib import Path
 
 from .core import default_model_capabilities, prompt, wizard
 from .core.config import ModelConfig, ProviderConfig
+from .core.conflict import resolve_conflict_action, supports_append
+from .core.paste import parse_provider_paste
 
 
 def _build_model(name: str, display: str | None, reasoning: str | None,
@@ -134,9 +136,23 @@ def build_parser() -> argparse.ArgumentParser:
         "--target",
         action="append",
         default=[],
-        choices=["zed", "py"],
-        help="Restrict to specific target(s): zed, py (repeatable). "
+        choices=["zed", "py", "omp", "claude"],
+        help="Restrict to specific target(s): zed, py, omp, claude (repeatable). "
         "Defaults to all detected/installed apps.",
+    )
+    p.add_argument(
+        "--config-file",
+        type=Path,
+        help="Path to a JSON file with provider fields (provider_name, "
+        "api_url, api_key, models). Overrides --provider/--api-url/...",
+    )
+    p.add_argument(
+        "--conflict",
+        choices=["replace", "skip", "append", "prompt"],
+        default=None,
+        help="What to do when the provider name already exists on a target. "
+        "Default: prompt interactively; replace for zed/claude, append for "
+        "py/omp in non-interactive mode.",
     )
 
     # Non-interactive provider options.
@@ -207,8 +223,11 @@ def _select_targets(args, provider: ProviderConfig | None) -> list:
     if not installed and not missing:
         return []
 
-    # Non-interactive (flags): configure all detected/installed apps.
-    if any([args.provider, args.api_url, args.api_key, args.model, args.model_name]):
+    # Non-interactive (flags or --config-file): configure all detected/installed apps.
+    non_interactive_args = any(
+        [args.provider, args.api_url, args.api_key, args.model, args.model_name]
+    )
+    if non_interactive_args or args.config_file is not None:
         if installed:
             return installed
         # Nothing installed but non-interactive: configure the missing ones too
@@ -243,25 +262,49 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    # Decide interactive vs non-interactive.
-    non_interactive = any(
-        [args.provider, args.api_url, args.api_key, args.model, args.model_name]
-    )
+    # ---- Resolve provider -----------------------------------------------
+    non_interactive = False
+    provider: ProviderConfig | None = None
 
-    if non_interactive:
-        if not (args.provider and args.api_url and args.api_key):
+    if args.config_file is not None:
+        try:
+            raw = args.config_file.read_text(encoding="utf-8")
+        except OSError as exc:
+            prompt.error(f"Could not read --config-file: {exc}")
+            return 2
+        try:
+            provider, missing = parse_provider_paste(raw)
+        except ValueError as exc:
+            prompt.error(str(exc))
+            return 2
+        if missing:
             prompt.error(
-                "Non-interactive mode requires --provider, --api-url and "
-                "--api-key."
+                "--config-file is missing required fields: "
+                + ", ".join(missing)
+                + ". Provide them via flags or paste them in the wizard."
             )
             return 2
-        provider = _provider_from_args(args)
+        non_interactive = True
         use_keychain = not args.no_keychain
         use_env = args.env_key
     else:
-        provider, prefs = wizard.run_wizard()
-        use_keychain = prefs["use_keychain"] and not args.no_keychain
-        use_env = prefs["use_env"] or args.env_key
+        non_interactive = any(
+            [args.provider, args.api_url, args.api_key, args.model, args.model_name]
+        )
+        if non_interactive:
+            if not (args.provider and args.api_url and args.api_key):
+                prompt.error(
+                    "Non-interactive mode requires --provider, --api-url and "
+                    "--api-key."
+                )
+                return 2
+            provider = _provider_from_args(args)
+            use_keychain = not args.no_keychain
+            use_env = args.env_key
+        else:
+            provider, prefs = wizard.run_wizard()
+            use_keychain = prefs["use_keychain"] and not args.no_keychain
+            use_env = prefs["use_env"] or args.env_key
 
     # At least one storage method must be active. Zed reads either the
     # keychain or the ``<PROVIDER>_API_KEY`` env var, and py.dev requires the
@@ -275,10 +318,33 @@ def main(argv: list[str] | None = None) -> int:
         prompt.warn("No target applications selected. Nothing to do.")
         return 0
 
+    # ---- Per-target conflict resolution ----------------------------------
+    # CLI override for the conflict action: replace/skip/append/prompt.
+    cli_flag = args.conflict if args.conflict and args.conflict != "prompt" else None
+
+    def _pick(target) -> str:
+        """Resolve the conflict action for one target, prompting if needed."""
+        existing_names = target.current_provider_names()
+        has_collision = bool(existing_names) and provider.provider_name in existing_names
+        decided = resolve_conflict_action(
+            target.name,
+            has_collision=has_collision,
+            interactive=not non_interactive,
+            conflict_flag=cli_flag,
+        )
+        if decided is not None:
+            return decided.value
+        # Interactive + collision + no CLI override: ask the user.
+        options = ["replace", "skip"]
+        if supports_append(target.name):
+            options.append("append")
+        return prompt.choose_action(target.display_name, options, default="replace")
+
     success = True
     for target in targets:
         try:
-            # Install/upgrade to the latest version unless the user opted out.
+            conflict_action = _pick(target)
+
             if not args.skip_install:
                 target.install(log=prompt.info)
             target.configure(
@@ -286,6 +352,7 @@ def main(argv: list[str] | None = None) -> int:
                 dry_run=args.dry_run,
                 use_keychain=use_keychain,
                 use_env=use_env,
+                conflict_action=conflict_action,
                 log=prompt.info,
             )
         except ValueError as exc:

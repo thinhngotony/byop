@@ -1,5 +1,6 @@
 """End-to-end smoke test for the CLI entry point (targets mocked)."""
 
+import json
 import sys
 from pathlib import Path
 
@@ -23,6 +24,10 @@ def test_cli_dry_run_non_interactive(monkeypatch):
 
         def configure(self, provider, **kwargs):
             calls["configure"] += 1
+            calls["kwargs"] = kwargs
+
+        def current_provider_names(self):
+            return []  # No collision -> per-target _pick returns default policy.
 
     import byop.core.targets as tmod
 
@@ -46,4 +51,107 @@ def test_cli_dry_run_non_interactive(monkeypatch):
 
 def test_cli_non_interactive_requires_provider(monkeypatch, capsys):
     rc = cli.main(["--api-url", "https://api.example.com/v1"])
+    assert rc == 2
+
+
+def test_cli_config_file_path(monkeypatch, tmp_path):
+    cfg = tmp_path / "provider.json"
+    cfg.write_text(json.dumps({
+        "provider_name": "P",
+        "api_url": "https://api.example.com/v1",
+        "api_key": "sk-x",
+        "models": [{"name": "m1"}],
+    }))
+    called = {"configure": 0, "install": 0}
+
+    class FT:
+        name = "zed"
+        display_name = "Zed"
+        existing = []
+
+        def is_installed(self):
+            return True
+
+        def install(self, log=print):
+            called["install"] += 1
+
+        def configure(self, provider, **kw):
+            called["configure"] += 1
+
+        def current_provider_names(self):
+            return list(self.existing)
+
+    import byop.core.targets as tmod
+
+    monkeypatch.setattr(tmod, "available_targets", lambda settings_path=None: [FT()])
+    monkeypatch.setattr(tmod, "detect_installed", lambda targets: targets)
+
+    rc = cli.main(["--config-file", str(cfg), "--dry-run"])
+    assert rc == 0
+    assert called["configure"] == 1
+
+
+def test_cli_target_choices_include_omp_and_claude():
+    """The --target flag must accept the new options without a parse error."""
+    parser = cli.build_parser()
+    # Argparse rejects unknown choices; if the list isn't updated, this errors.
+    for action in parser._actions:
+        if "--target" in str(action.option_strings):
+            assert "omp" in action.choices
+            assert "claude" in action.choices
+            return
+    raise AssertionError("--target action not found")
+
+
+def test_cli_conflict_flag_passed_to_configure(monkeypatch, tmp_path):
+    """--conflict skip must be threaded into ZedTarget.configure(...)."""
+    cfg = tmp_path / "provider.json"
+    cfg.write_text(json.dumps({
+        "provider_name": "P",
+        "api_url": "https://api.example.com/v1",
+        "api_key": "sk-x",
+        "models": [{"name": "m1"}],
+    }))
+    captured = {}
+
+    class FT:
+        name = "zed"
+        display_name = "Zed"
+        existing = ["P"]
+
+        def is_installed(self):
+            return True
+
+        def install(self, log=print):
+            pass
+
+        def configure(self, provider, **kw):
+            captured["conflict_action"] = kw.get("conflict_action")
+
+        def current_provider_names(self):
+            return list(self.existing)
+
+    import byop.core.targets as tmod
+
+    monkeypatch.setattr(tmod, "available_targets", lambda settings_path=None: [FT()])
+    monkeypatch.setattr(tmod, "detect_installed", lambda targets: targets)
+
+    rc = cli.main([
+        "--config-file", str(cfg),
+        "--conflict", "skip",
+        "--dry-run",
+    ])
+    assert rc == 0
+    assert captured["conflict_action"] == "skip"
+
+
+def test_cli_config_file_missing_key_rejected(monkeypatch, tmp_path):
+    cfg = tmp_path / "provider.json"
+    cfg.write_text(json.dumps({
+        "provider_name": "P",
+        "api_url": "https://api.example.com/v1",
+        "models": [{"name": "m1"}],
+    }))
+    rc = cli.main(["--config-file", str(cfg), "--target", "zed"])
+    # api_key missing -> CLI exits 2.
     assert rc == 2
