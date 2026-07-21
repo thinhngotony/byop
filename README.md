@@ -42,6 +42,8 @@ writes your secret to disk in plaintext.
 | --- | --- | --- |
 | `zed` (Zed) | `~/.config/zed/settings.json` | Homebrew cask / direct download |
 | `py` (py.dev / Pi) | `~/.pi/agent/models.json` | Homebrew cask |
+| `omp` (oh-my-pi / Oh My Pi) | `~/.omp/agent/models.json` | `brew install can1357/tap/omp` / `curl -fsSL https://omp.sh/install | sh` |
+| `claude` (Claude Code) | `~/.claude/settings.json` | `brew install --cask claude-code` / `npm i -g @anthropic-ai/claude-code` / `curl -fsSL https://claude.ai/install.sh | sh` |
 
 > Platform: **macOS**. The keychain integration is macOS-specific; the
 > architecture is built so other platforms/tools can be added behind the same
@@ -114,7 +116,9 @@ byop \
 
 | Flag | Purpose |
 | --- | --- |
-| `--target {zed,py}` | Configure only the named target(s); repeatable. Defaults to all detected apps. |
+| `--target {zed,py,omp,claude}` | Configure only the named target(s); repeatable. Defaults to all detected apps. |
+| `--config-file PATH` | Path to a JSON file with provider fields (`provider_name`, `api_url`, `api_key`, `models`). Overrides per-flag values. Useful for scripts and re-runs. |
+| `--conflict {replace,skip,append,prompt}` | What to do when a provider with the same name already exists on a target. Default: prompt interactively; `replace` for zed/claude, `append` for py/omp in non-interactive mode. |
 | `--settings PATH` | Override the Zed settings path (default `~/.config/zed/settings.json`). |
 | `--dry-run` | Print the configuration fragments that *would* be written; change nothing. |
 | `--no-keychain` | Skip the macOS keychain (falls back to an embedded key — less secure). |
@@ -184,6 +188,28 @@ warning).
   another detected profile) and refuses to duplicate it on re-runs.
 - No credentials are sent over the network by `byop` itself; it only writes
   local config files and keychain entries.
+
+## Conflict resolution
+
+If a provider with the same name already exists on a target, `byop` asks you
+what to do:
+
+- **replace** — overwrite the existing entry. For Zed and Claude Code this also
+  switches the active default model to the new one.
+- **skip** — leave the file untouched (idempotent re-run). The macOS keychain
+  entry is still ensured.
+- **append** — write under `<ProviderName>_2`, `<ProviderName>_3`, … so the new
+  provider lives alongside the existing one. Only available for targets that
+  support multiple concurrent providers (py.dev, omp).
+
+For non-interactive / scripted runs, pass `--conflict replace|skip|append`
+to skip the prompt. The default in non-interactive mode is `replace` for
+Zed/Claude Code and `append` for py.dev/omp.
+
+The wizard's first prompt also accepts a pasted JSON block. If your provider
+description is already in a file, you can pipe it: `pbpaste | xargs -0 byop`
+isn't right, but `byop` will detect any multi-line JSON shape and skip the
+per-field prompts. See `--config-file` for the scripted equivalent.
 
 ## Behavioral notes
 
