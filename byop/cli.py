@@ -141,9 +141,9 @@ def build_parser() -> argparse.ArgumentParser:
         "--target",
         action="append",
         default=[],
-        choices=["zed", "py", "omp", "claude"],
-        help="Restrict to specific target(s): zed, py, omp, claude (repeatable). "
-        "Defaults to all detected/installed apps.",
+        choices=["zed", "py", "omp", "claude", "opencode"],
+        help="Restrict to specific target(s): zed, py, omp, claude, opencode "
+        "(repeatable). Defaults to all detected/installed apps.",
     )
     p.add_argument(
         "--config-file",

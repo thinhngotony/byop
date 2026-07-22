@@ -10,11 +10,18 @@ from pathlib import Path
 from .base import Target
 from .claude import ClaudeTarget
 from .omp import OmpTarget
+from .opencode import OpencodeTarget
 from .py import PyTarget
 from .zed import ZedTarget
 
 # Targets that are fully implemented and offered to the user.
-ALL_TARGETS: list[type[Target]] = [ZedTarget, PyTarget, ClaudeTarget, OmpTarget]
+ALL_TARGETS: list[type[Target]] = [
+    ZedTarget,
+    PyTarget,
+    ClaudeTarget,
+    OmpTarget,
+    OpencodeTarget,
+]
 
 
 def available_targets(settings_path: Path | None = None) -> list[Target]:

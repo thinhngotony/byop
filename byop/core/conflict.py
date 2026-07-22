@@ -18,7 +18,7 @@ class ConflictAction(str, Enum):  # noqa: UP042
 def default_conflict_action(target_name: str, *, interactive: bool) -> str | None:
     """Return the non-interactive default for a given target, or None for interactive.
 
-    Rule: zed/claude REPLACE the active default; py/omp APPEND a new entry.
+    Rule: zed/claude REPLACE the active default; py/omp/opencode APPEND a new entry.
     Interactive runs always return None to signal "ask the user".
     """
     if interactive:
@@ -27,7 +27,7 @@ def default_conflict_action(target_name: str, *, interactive: bool) -> str | Non
 
 
 # Names of the targets that allow multiple concurrent provider entries.
-_TARGETS_THAT_APPEND = frozenset({"py", "omp"})
+_TARGETS_THAT_APPEND = frozenset({"py", "omp", "opencode"})
 _VALID_CONFLICT_FLAGS = frozenset({"replace", "skip", "append"})
 
 
