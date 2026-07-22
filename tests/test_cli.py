@@ -235,3 +235,16 @@ def test_cli_conflict_append_against_single_provider_rejected(monkeypatch, tmp_p
     assert rc == 2
     captured = capsys.readouterr()
     assert "append is not supported for" in captured.err
+
+
+def test_cli_ctrl_c_exits_cleanly(monkeypatch, capsys):
+    """Ctrl+C during the interactive wizard prints cancellation, not a traceback."""
+    def raise_keyboard_interrupt():
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(cli.wizard, "run_wizard", raise_keyboard_interrupt)
+
+    rc = cli.main([])
+
+    assert rc == 130
+    assert "Cancelled." in capsys.readouterr().out
