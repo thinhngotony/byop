@@ -60,11 +60,14 @@ def _ask_models(provider_display: str) -> list[ModelConfig]:
     return models
 
 
-def run_wizard() -> tuple[ProviderConfig, dict]:
+def run_wizard(prefill: ProviderConfig | None = None) -> tuple[ProviderConfig, dict]:
     """Drive the interactive prompts.
 
-    Returns the configured :class:`ProviderConfig` and a dict with the
-    chosen key-storage preferences (``use_keychain`` / ``use_env``).
+    When ``prefill`` is supplied (typically from a saved profile), the wizard
+    pre-fills provider/api_url/models and only prompts for fields the user
+    wants to override. Returns the configured :class:`ProviderConfig` and a
+    dict with the chosen key-storage preferences (``use_keychain`` /
+    ``use_env``).
     """
 
     prompt.header("byop — Custom LLM provider setup")
@@ -73,10 +76,10 @@ def run_wizard() -> tuple[ProviderConfig, dict]:
         "a custom OpenAI-compatible provider into them."
     )
 
-    # First prompt: paste JSON or press Enter to fill fields. We try to
-    # detect a paste heuristically (multi-line, parseable JSON), and then
-    # only ask for fields the paste didn't supply.
-    prefill: ProviderConfig | None = None
+    # First prompt: paste JSON or press Enter to fill in fields. We try to
+    # detect a paste heuristically (multi-line, parseable JSON), and then only
+    # ask for fields the paste didn't supply.
+    pasted_prefill: ProviderConfig | None = None
     missing: list[str] = []
     pasted = prompt.ask(
         "Paste provider JSON (or press Enter to fill in fields one at a time)",
@@ -85,34 +88,81 @@ def run_wizard() -> tuple[ProviderConfig, dict]:
     )
     if pasted and looks_like_provider_paste(pasted):
         try:
-            prefill, missing = parse_provider_paste(pasted)
+            pasted_prefill, missing = parse_provider_paste(pasted)
         except ValueError as exc:
             prompt.warn(f"Could not parse pasted JSON ({exc}) — "
                         f"falling back to per-field prompts.")
-            prefill = None
+            pasted_prefill = None
             missing = list(REQUIRED_KEYS)
 
-    provider_name = (
-        prefill.provider_name
-        if prefill is not None and "provider_name" not in missing
-        else prompt.ask("Provider name (e.g. 'HyberOrbit')")
-    )
+    # Determine which fields are "known" from a paste. A paste that supplies
+    # all fields short-circuits the per-field prompts entirely.
+    if pasted_prefill is not None:
+        prefill = pasted_prefill
 
-    if prefill is not None and "api_url" not in missing:
-        api_url = prefill.api_url
+    def _have(field: str) -> bool:
+        if pasted_prefill is not None:
+            return field not in missing
+        # Saved-profile prefill: every field is "known" (api_key may be empty
+        # when stored as a keychain reference, so we always re-prompt for it).
+        return prefill is not None and field != "api_key"
+
+    def _present(field: str) -> bool:
+        """True when prefill has a non-empty value for this field."""
+        if not _have(field) or prefill is None:
+            return False
+        return bool(getattr(prefill, field, None))
+
+    if prefill is not None and _present("provider_name"):
+        if pasted_prefill is not None:
+            # Complete paste: use values directly, no re-confirmation.
+            provider_name = prefill.provider_name
+        else:
+            # Saved-profile prefill: confirm so the user can override.
+            prompt.info(f"  Provider name: {prefill.provider_name}")
+            provider_name = prompt.ask(
+                "Provider name (Enter to keep)",
+                default=prefill.provider_name,
+            )
+    else:
+        provider_name = prompt.ask("Provider name (e.g. 'HyberOrbit')")
+
+    if prefill is not None and _present("api_url"):
+        if pasted_prefill is not None:
+            api_url = prefill.api_url
+        else:
+            prompt.info(f"  API URL: {prefill.api_url}")
+            api_url = prompt.ask(
+                "API base URL (Enter to keep)", default=prefill.api_url
+            )
     else:
         api_url = prompt.ask(
             "API base URL (e.g. 'https://api.example.com/v1')"
         )
 
-    api_key = (
-        prefill.api_key
-        if prefill is not None and "api_key" not in missing
-        else prompt.ask_secret("API key")
-    )
+    # api_key: only ask when missing. For a complete paste the user already
+    # typed it once; for a saved profile we treat the stored secret as
+    # authoritative (the user can rotate via `byop profile edit`).
+    if prefill is not None and _present("api_key") and pasted_prefill is not None:
+        api_key = prefill.api_key
+    elif prefill is not None and _present("api_key"):
+        # Saved profile — re-prompt so we don't echo the secret.
+        prompt.info("  API key: (loaded from keychain — press Enter to keep)")
+        api_key = prompt.ask_secret("API key")
+    else:
+        api_key = prompt.ask_secret("API key")
 
-    if prefill is not None and "models" not in missing and prefill.models:
-        models = list(prefill.models)
+    if prefill is not None and _present("models") and prefill.models:
+        if pasted_prefill is not None:
+            models = list(prefill.models)
+        else:
+            prompt.info(
+                f"  Models: {', '.join(m.name for m in prefill.models)}"
+            )
+            if prompt.confirm("Reconfigure models?", default=False):
+                models = _ask_models(provider_name)
+            else:
+                models = list(prefill.models)
     else:
         models = _ask_models(provider_name)
 
@@ -122,20 +172,24 @@ def run_wizard() -> tuple[ProviderConfig, dict]:
         "model is used where a single model is required."
     )
     set_default = prompt.confirm(
-        "Set as the default Agent model?", default=True
+        "Set as the default Agent model?",
+        default=(prefill.set_default_agent if prefill else True),
     )
     set_inline = prompt.confirm(
-        "Set as the Inline Assistant model?", default=True
+        "Set as the Inline Assistant model?",
+        default=(prefill.set_inline_assistant if prefill else True),
     )
     set_commit = prompt.confirm(
-        "Use for Git commit messages?", default=False
+        "Use for Git commit messages?",
+        default=(prefill.set_commit_message if prefill else False),
     )
     set_summary = prompt.confirm(
-        "Use for thread summaries?", default=False
+        "Use for thread summaries?",
+        default=(prefill.set_thread_summary if prefill else False),
     )
     use_edit = prompt.confirm(
         "Enable Edit Predictions (autocomplete) with this provider?",
-        default=False,
+        default=(prefill.use_edit_predictions if prefill else False),
     )
 
     prompt.header("API key storage")

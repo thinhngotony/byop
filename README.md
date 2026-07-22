@@ -104,14 +104,6 @@ tools and asks which to configure:
 ```
 
 ### Non-interactive (scripting / CI)
-
-```bash
-byop \
-  --provider "MyProvider" \
-  --api-url "https://api.example.com/v1" \
-  --api-key "sk-xxxx" \
-  --model my-model \
-  --inline-assistant --default-agent
 ```
 
 | Flag | Purpose |
@@ -155,6 +147,30 @@ write):
   "py": { "config_path": "...", "providers": { ... } }
 }
 ```
+
+## Subcommands (v2.0+)
+
+After the first run, `byop` remembers your provider as a **profile** under
+`~/.config/byop/profiles/<name>.toml`. Subsequent invocations skip the
+wizard:
+
+| Command | Purpose |
+| --- | --- |
+| `byop` | Status dashboard (or first-run wizard when no profile exists). |
+| `byop status` | Read-only dashboard: active profile, target state, drift. |
+| `byop apply [flags]` | Sync the active profile to one or more targets. |
+| `byop doctor` | Detect drift between the profile and each target's settings. |
+| `byop profile list` | Show all saved profiles (active first). |
+| `byop profile use <name>` | Switch the active profile. |
+| `byop profile new` | Walk through creating a new profile (interactive). |
+| `byop profile edit` | Re-run the wizard pre-filled with the active profile. |
+| `byop profile export` | Print the active profile as JSON. |
+| `byop profile delete <name>` | Delete a saved profile. |
+| `byop export-config` | Dump current target settings as JSON (alias of `--export-config`). |
+
+The legacy top-level flags (`byop --provider P --api-url ...`) still work and
+are routed to `apply`. So existing scripts and CI pipelines don't need to
+change.
 
 ## What it writes
 

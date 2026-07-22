@@ -93,10 +93,21 @@ def test_cli_config_file_path(monkeypatch, tmp_path):
 
 def test_cli_target_choices_include_omp_and_claude():
     """The --target flag must accept the new options without a parse error."""
+    from argparse import ArgumentParser
+
+    def _walk_actions(parser: ArgumentParser):
+        for action in parser._actions:
+            yield action
+            # Subparser actions carry a `.choices` mapping of name->subparser.
+            sub = getattr(action, "choices", None)
+            if isinstance(sub, dict):
+                for subparser in sub.values():
+                    if isinstance(subparser, ArgumentParser):
+                        yield from _walk_actions(subparser)
+
     parser = cli.build_parser()
-    # Argparse rejects unknown choices; if the list isn't updated, this errors.
-    for action in parser._actions:
-        if "--target" in str(action.option_strings):
+    for action in _walk_actions(parser):
+        if "--target" in action.option_strings:
             assert "omp" in action.choices
             assert "claude" in action.choices
             assert "opencode" in action.choices
@@ -273,8 +284,14 @@ def test_cli_conflict_append_against_single_provider_rejected(monkeypatch, tmp_p
     assert "append is not supported for" in captured.err
 
 
-def test_cli_ctrl_c_exits_cleanly(monkeypatch, capsys):
-    """Ctrl+C during the interactive wizard prints cancellation, not a traceback."""
+def test_cli_ctrl_c_exits_cleanly(monkeypatch, capsys, tmp_path):
+    """Ctrl+C during the interactive wizard prints cancellation, not a traceback.
+
+    Requires a clean (no-profile) state so bare `byop` falls into the wizard.
+    Use a tmp BYOP_CONFIG_DIR so the real user profile doesn't interfere.
+    """
+    monkeypatch.setenv("BYOP_CONFIG_DIR", str(tmp_path))
+
     def raise_keyboard_interrupt():
         raise KeyboardInterrupt
 

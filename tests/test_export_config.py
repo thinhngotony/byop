@@ -120,7 +120,8 @@ def test_cli_export_config_emits_json_for_each_target(capsys):
     from byop.cli import build_parser
 
     parser = build_parser()
-    args = parser.parse_args(["--export-config"])
+    # Top-level --export-config now lives under the export-config subparser.
+    args = parser.parse_args(["export-config"])
     # Avoid touching the user's real files: monkeypatch the registry to a
     # single in-memory target pointed at a temp file.
     import byop.core.targets as tmod
@@ -157,7 +158,7 @@ def test_cli_export_config_filters_by_provider():
     from byop.cli import build_parser
 
     parser = build_parser()
-    args = parser.parse_args(["--export-config", "--export-provider", "Wanted"])
+    args = parser.parse_args(["export-config", "--export-provider", "Wanted"])
 
     import byop.core.targets as tmod
     from byop.core.targets.zed import ZedTarget
