@@ -15,4 +15,4 @@ try:  # pragma: no cover - resolved at install time
 
     __version__ = _pkg_version("byop")
 except Exception:  # pragma: no cover
-    __version__ = "1.3.0"
+    __version__ = "1.4.0"
