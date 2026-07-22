@@ -137,3 +137,30 @@ class ZedTarget:
         data = sett.load_path(self.settings_path)
         block = data.get("language_models", {}).get("openai_compatible", {})
         return list(block.keys()) if isinstance(block, dict) else []
+
+    def export_config(self) -> dict:
+        """Return the byop-managed slice of Zed's settings.json.
+
+        Includes ``language_models.openai_compatible`` plus the ``agent`` and
+        ``edit_predictions`` blocks (only those byop writes — other agent
+        settings the user has set are intentionally excluded).
+        """
+        data = sett.load_path(self.settings_path)
+        providers = (
+            data.get("language_models", {}).get("openai_compatible", {})
+        )
+        out = {
+            self.name: {
+                "config_path": str(self.settings_path),
+                "providers": dict(providers) if isinstance(providers, dict) else {},
+            }
+        }
+        # Surface the agent/edit_predictions wiring only if byop-managed keys
+        # are present, so the export stays focused on what byop wrote.
+        agent = data.get("agent")
+        if isinstance(agent, dict) and agent:
+            out[self.name]["agent"] = agent
+        ep = data.get("edit_predictions")
+        if isinstance(ep, dict) and ep:
+            out[self.name]["edit_predictions"] = ep
+        return out

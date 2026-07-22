@@ -124,9 +124,37 @@ byop \
 | `--no-keychain` | Skip the macOS keychain (falls back to an embedded key — less secure). |
 | `--env-key` | Also export the key as a shell environment variable. |
 | `--skip-install` | Configure settings only; do not install/upgrade any app. |
+| `--export-config` | Print the byop-managed slice of each target's settings as JSON and exit (no writes). Combine with `--target` and `--export-provider` to filter. |
 
 Repeat `--model` for multiple models; the **first** becomes the default for
 features that take a single model.
+
+## Inspecting the current configuration
+
+`--export-config` dumps the byop-managed slice of each target's settings as
+JSON and exits without writing anything. Useful for diffing between runs or
+copying a fragment into another tool:
+
+```bash
+byop --export-config                            # all targets, all providers
+byop --export-config --target zed               # just Zed
+byop --export-config --export-provider HyberOrbit  # only that name
+```
+
+Output shape (one key per target, `config_path` shows where the target would
+write):
+
+```json
+{
+  "zed": {
+    "config_path": "/Users/you/.config/zed/settings.json",
+    "providers": { "HyberOrbit": { "api_url": "...", "available_models": [...] } },
+    "agent": { "default_model": { ... } },
+    "edit_predictions": { ... }
+  },
+  "py": { "config_path": "...", "providers": { ... } }
+}
+```
 
 ## What it writes
 

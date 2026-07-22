@@ -21,6 +21,7 @@ Examples
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from importlib.metadata import version as _pkg_version
 from pathlib import Path
@@ -159,6 +160,20 @@ def build_parser() -> argparse.ArgumentParser:
         "Default: prompt interactively; replace for zed/claude, append for "
         "py/omp in non-interactive mode.",
     )
+    p.add_argument(
+        "--export-config",
+        action="store_true",
+        help="Print the current byop-managed configuration for each target "
+        "as JSON and exit. Use --target to restrict to one target, "
+        "--provider to filter to a single named provider. Does not modify "
+        "any settings.",
+    )
+    p.add_argument(
+        "--export-provider",
+        default=None,
+        help="With --export-config: only include this provider name. Targets "
+        "without a matching provider are omitted from the output.",
+    )
 
     # Non-interactive provider options.
     g = p.add_argument_group("provider (non-interactive mode)")
@@ -271,9 +286,64 @@ def main(argv: list[str] | None = None) -> int:
         return 130
 
 
+def _run_export(args: argparse.Namespace) -> int:
+    """Print the byop-managed slice of every target's settings as JSON.
+
+    Honors ``--target`` (restrict to one) and ``--export-provider`` (filter to
+    a single named provider across multi-provider targets like py/omp/opencode).
+    """
+    from .core.targets import available_targets
+
+    all_targets = available_targets(settings_path=args.settings)
+    by_name = {t.name: t for t in all_targets}
+
+    if args.target:
+        chosen = [by_name[n] for n in args.target if n in by_name]
+    else:
+        chosen = list(all_targets)
+
+    out: dict = {}
+    for target in chosen:
+        try:
+            snapshot = target.export_config()
+        except RuntimeError as exc:
+            prompt.error(f"{target.display_name}: {exc}")
+            return 1
+        # Filter to a single provider if --export-provider was set.
+        if args.export_provider:
+            entry = snapshot.get(target.name, {})
+            providers = entry.get("providers", {}) or {}
+            filtered = {
+                k: v for k, v in providers.items()
+                if k == args.export_provider
+            }
+            if filtered:
+                entry = {**entry, "providers": filtered}
+                snapshot = {target.name: entry}
+            else:
+                # Nothing matched — skip the target so callers piping the
+                # output don't see an empty shell entry.
+                continue
+        # Always include the target, even when providers is empty, so users
+        # can see the path the target would write to. This makes the output
+        # useful for targets that haven't been configured yet.
+        out.update(snapshot)
+
+    sys.stdout.write(json.dumps(out, indent=2, ensure_ascii=False) + "\n")
+    sys.stdout.flush()
+    return 0
+
+
 def _main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    # ---- Export-only mode (no provider resolution, no writes) ----------
+    # Print the byop-managed slice of every target's settings as JSON and
+    # exit. Runs before any interactive wizard so users can pipe the output
+    # into other tools (jq, diff, etc.) without supplying provider flags.
+    if args.export_config:
+        return _run_export(args)
 
     # ---- Resolve provider -----------------------------------------------
     non_interactive = False

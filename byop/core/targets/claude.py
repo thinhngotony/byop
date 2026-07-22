@@ -178,3 +178,27 @@ class ClaudeTarget:
         name = data.get("provider")
         return [name] if isinstance(name, str) and name else []
 
+    def export_config(self) -> dict:
+        """Return the byop-managed slice of Claude Code's ``settings.json``.
+
+        Claude Code is single-provider — there's at most one active provider,
+        so we surface it under the same ``providers`` key as multi-provider
+        targets, keyed by ``provider`` (or ``""`` if not set).
+        """
+        data = self._load()
+        providers: dict = {}
+        name = data.get("provider")
+        if isinstance(name, str) and name:
+            providers[name] = {
+                "provider": name,
+                "apiBaseUrl": data.get("apiBaseUrl"),
+                "apiKey": data.get("apiKey"),
+                "model": data.get("model"),
+            }
+        return {
+            self.name: {
+                "config_path": str(self.settings_path),
+                "providers": providers,
+            }
+        }
+

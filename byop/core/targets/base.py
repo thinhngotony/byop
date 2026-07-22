@@ -47,6 +47,24 @@ class Target(Protocol):
 
     def current_provider_names(self) -> list[str]: ...
 
+    def export_config(self) -> dict:
+        """Return a snapshot of the byop-managed slice of the target's config.
+
+        The shape is::
+
+            {
+                "<target-name>": {
+                    "config_path": "<absolute path>",
+                    "providers": {<name>: <provider block>, ...},
+                }
+            }
+
+        Targets that do not yet have a config file should return a dict with an
+        empty ``providers`` mapping so the caller can still see the path the
+        target would write to.
+        """
+        ...
+
 
 def detect_installed(targets: list[Target]) -> list[Target]:
     """Return the subset of ``targets`` that are installed."""

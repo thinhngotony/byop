@@ -24,6 +24,18 @@ def _console() -> Console:
     return Console()
 
 
+def _strip_escape_chars(text: str) -> str:
+    """Remove stray ESC / caret-notation bytes from terminal input.
+
+    Rich's ``Prompt.ask`` reads input character-by-character; if the user
+    presses ESC (sometimes accidentally while clicking out of focus) the
+    terminal delivers ``\\x1b`` and rich echoes it as ``^[``. A stray
+    ESC in the middle of an interactive prompt is never a meaningful
+    answer — strip it so the next ``input()`` call sees a clean value.
+    """
+    return text.replace("\x1b", "")
+
+
 def ask(prompt: str, default: str = "", allow_empty: bool = False) -> str:
     if _HAS_RICH:
         val = Prompt.ask(_PROMPT_PREFIX + prompt, default=default)
@@ -32,6 +44,7 @@ def ask(prompt: str, default: str = "", allow_empty: bool = False) -> str:
         val = input(f"{_PROMPT_PREFIX}{prompt}{suffix}: ").strip()
         if not val and default:
             val = default
+    val = _strip_escape_chars(val)
     if not allow_empty and not val:
         # Retry once for critical fields.
         return ask(prompt, default=default, allow_empty=allow_empty)
@@ -41,20 +54,24 @@ def ask(prompt: str, default: str = "", allow_empty: bool = False) -> str:
 def ask_secret(prompt: str) -> str:
     if _HAS_RICH:
         return Prompt.ask(_PROMPT_PREFIX + prompt, password=True)
-    return getpass.getpass(f"{_PROMPT_PREFIX}{prompt}: ")
+    return _strip_escape_chars(getpass.getpass(f"{_PROMPT_PREFIX}{prompt}: "))
 
 
 def ask_int(prompt: str, default: int) -> int:
     if _HAS_RICH:
         return IntPrompt.ask(_PROMPT_PREFIX + prompt, default=default)
-    raw = input(f"{_PROMPT_PREFIX}{prompt} [{default}]: ").strip()
+    raw = _strip_escape_chars(
+        input(f"{_PROMPT_PREFIX}{prompt} [{default}]: ")
+    ).strip()
     return int(raw) if raw else default
 
 
 def confirm(prompt: str, default: bool = False) -> bool:
     if _HAS_RICH:
         return Confirm.ask(_PROMPT_PREFIX + prompt, default=default)
-    raw = input(f"{_PROMPT_PREFIX}{prompt} (y/N): ").strip().lower()
+    raw = _strip_escape_chars(
+        input(f"{_PROMPT_PREFIX}{prompt} (y/N): ")
+    ).strip().lower()
     if not raw:
         return default
     return raw in ("y", "yes", "1", "true")
@@ -77,7 +94,9 @@ def choose(prompt: str, options: list[str], default_index: int = 0) -> str:
     print(_PROMPT_PREFIX + prompt)
     for i, opt in enumerate(options):
         print(f"  {i+1}. {opt}")
-    raw = input(f"Select [1-{len(options)}] [{default_index+1}]: ").strip()
+    raw = _strip_escape_chars(
+        input(f"Select [1-{len(options)}] [{default_index+1}]: ")
+    ).strip()
     idx = int(raw) - 1 if raw else default_index
     return options[idx]
 
@@ -102,8 +121,10 @@ def choose_action(target_label: str, options: list[str], default: str = "replace
             choices=options,
             default=default,
         )
-    raw = input(
-        f"  Action for {target_label} [{'/'.join(options)}] ({default}): "
+    raw = _strip_escape_chars(
+        input(
+            f"  Action for {target_label} [{'/'.join(options)}] ({default}): "
+        )
     ).strip().lower()
     if raw in options:
         return raw

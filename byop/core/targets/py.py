@@ -235,3 +235,14 @@ class PyTarget:
         data = self._load()
         block = data.get("providers", {})
         return list(block.keys()) if isinstance(block, dict) else []
+
+    def export_config(self) -> dict:
+        """Return the byop-managed slice of py.dev's ``models.json``."""
+        data = self._load()
+        providers = data.get("providers", {})
+        return {
+            self.name: {
+                "config_path": str(self.models_path),
+                "providers": dict(providers) if isinstance(providers, dict) else {},
+            }
+        }

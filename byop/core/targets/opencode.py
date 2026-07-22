@@ -208,3 +208,14 @@ class OpencodeTarget:
         data = self._load()
         block = data.get("provider", {})
         return list(block.keys()) if isinstance(block, dict) else []
+
+    def export_config(self) -> dict:
+        """Return the byop-managed slice of opencode.json (top-level ``provider``)."""
+        data = self._load()
+        providers = data.get("provider", {})
+        return {
+            self.name: {
+                "config_path": str(self.config_path),
+                "providers": dict(providers) if isinstance(providers, dict) else {},
+            }
+        }
