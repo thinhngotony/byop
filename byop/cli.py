@@ -161,7 +161,10 @@ def _add_apply_args(p: argparse.ArgumentParser) -> None:
     g.add_argument("--api-key", help="API key for the provider")
     g.add_argument(
         "--model", action="append", default=[],
-        help="Model ID (repeatable). First becomes the default.",
+        help="Model spec (repeatable). First becomes the default. "
+        "Format: NAME[:KEY=VAL][:FLAG]... "
+        "Bare keys (images, tools, ...) set a capability to True. "
+        "Examples: --model any:images, --model command-code:reasoning_effort=max:max_tokens=1000000.",
     )
     g.add_argument("--model-name", help="Single model ID (legacy alias).")
     g.add_argument("--model-display", help="Display name for models.")
@@ -276,14 +279,53 @@ def _route_bare(parser: argparse.ArgumentParser, args: argparse.Namespace) -> in
 
 
 def _run_default_landing() -> int:
-    """The bare ``byop`` experience: status if configured, wizard if not."""
+    """The bare ``byop`` experience: interactive session that stays open.
+
+    Shows the status dashboard, then loops so the user can re-apply,
+    re-run the wizard, or manage profiles without re-invoking ``byop``.
+    """
     from .core import profiles as prof
 
-    if prof.profile_exists(prof.get_active_profile_name()):
-        return _run_status()
-    prompt.header("byop — Custom LLM provider setup")
-    prompt.info("No saved profile found — let's create one.")
-    return _run_first_run_wizard()
+    # First-run: create a profile if none exists.
+    if not prof.profile_exists(prof.get_active_profile_name()):
+        prompt.header("byop — Custom LLM provider setup")
+        prompt.info("No saved profile found — let's create one.")
+        _run_first_run_wizard()
+
+    # Interactive session loop.
+    while True:
+        _run_status()
+        prompt.header("Session")
+        prompt.info("  [bold]apply[/bold]          sync the active profile to targets")
+        prompt.info("  [bold]wizard[/bold]         reconfigure provider (interactive)")
+        prompt.info("  [bold]quit[/bold]           exit byop")
+        action = prompt.ask(
+            "What would you like to do?",
+            default="apply",
+        ).strip().lower()
+        if action in ("quit", "q", "exit"):
+            return 0
+        if action in ("wizard", "w"):
+            _run_first_run_wizard()
+            continue
+        if action in ("apply", "a", ""):
+            profile = prof.load_profile()
+            if profile.api_key_ref == "keychain":
+                from .core import keychain as kc
+                api_key = kc.keychain_get(profile.keychain_server()) or ""
+            else:
+                api_key = profile.api_key
+            args = _make_args_for_apply(
+                profile,
+                api_key,
+                {
+                    "use_keychain": profile.api_key_ref == "keychain",
+                    "use_env": profile.api_key_ref.startswith("env:"),
+                },
+            )
+            _run_apply(args)
+            continue
+        prompt.warn(f"Unknown action: {action!r}. Try apply, wizard, or quit.")
 
 
 def _run_first_run_wizard() -> int:
@@ -477,8 +519,10 @@ def _run_apply(args: argparse.Namespace) -> int:
     )
     if prof.profile_exists(profile_name):
         prof.save_profile(profile, allow_overwrite=True, api_key=api_key)
+        prompt.info(f"Updated saved profile {profile_name!r}.")
     else:
         prof.save_profile(profile, api_key=api_key)
+        prompt.info(f"Saved profile {profile_name!r} (active).")
     # Keep the secret in the keychain for `api_key_ref == "keychain"`.
     if use_keychain and api_key:
         from .core import keychain as kc
@@ -758,18 +802,111 @@ def _build_model(name: str, display: str | None, reasoning: str | None,
     )
 
 
+# Per-model spec keys: bare-key (set True) or key=value (set value).
+_MODEL_SPEC_BOOL_KEYS = {"images", "interleaved_reasoning",
+                         "max_tokens_parameter", "tools", "parallel_tool_calls",
+                         "prompt_cache_key", "chat_completions"}
+_MODEL_SPEC_INT_KEYS = {"max_tokens", "max_output_tokens",
+                        "context_window", "contextWindow"}
+_MODEL_SPEC_STR_KEYS = {"display", "display_name", "reasoning_effort"}
+
+
+def parse_model_specs(specs: list[str]) -> list[dict]:
+    """Parse `--model NAME[:KEY=VAL][:FLAG]...` into per-model dicts.
+
+    Each spec is a colon-separated list. The first segment is the model id.
+    Later segments are capability overrides; a bare key sets a bool to True,
+    ``key=value`` sets the named field. ``name`` may not contain ``:``.
+
+    Returns a list of dicts with the model fields consumed by _provider_from_args.
+    Raises ValueError on unknown keys or invalid reasoning_effort values.
+    """
+    from .core.config import DEFAULT_MAX_OUTPUT_TOKENS, DEFAULT_MAX_TOKENS, KNOWN_REASONING_EFFORTS
+
+    out: list[dict] = []
+    for spec in specs:
+        if not spec:
+            raise ValueError("Empty --model spec.")
+        parts = spec.split(":")
+        name = parts[0].strip()
+        if not name:
+            raise ValueError(f"Empty model name in --model {spec!r}.")
+        entry = {
+            "name": name,
+            "images": False,
+            "interleaved_reasoning": False,
+            "max_tokens_parameter": False,
+            "max_tokens": DEFAULT_MAX_TOKENS,
+            "max_output_tokens": DEFAULT_MAX_OUTPUT_TOKENS,
+            "reasoning_effort": None,
+            "display_name": None,
+        }
+        for part in parts[1:]:
+            if not part:
+                raise ValueError(f"Empty segment in --model {spec!r}.")
+            if "=" in part:
+                k, _, v = part.partition("=")
+                k = k.strip()
+                v = v.strip()
+                if k in _MODEL_SPEC_BOOL_KEYS:
+                    if v.lower() in ("true", "1", "yes"):
+                        entry[k] = True
+                    elif v.lower() in ("false", "0", "no"):
+                        entry[k] = False
+                    else:
+                        raise ValueError(
+                            f"--model {spec!r}: {k} expects boolean, got {v!r}."
+                        )
+                elif k in _MODEL_SPEC_INT_KEYS:
+                    try:
+                        entry[k] = int(v)
+                    except ValueError as exc:
+                        raise ValueError(
+                            f"--model {spec!r}: {k} expects integer, got {v!r}."
+                        ) from exc
+                elif k in _MODEL_SPEC_STR_KEYS:
+                    if k == "display":
+                        entry["display_name"] = v
+                    elif k == "reasoning_effort":
+                        if v not in KNOWN_REASONING_EFFORTS:
+                            raise ValueError(
+                                f"--model {spec!r}: invalid reasoning_effort "
+                                f"{v!r}; valid: {sorted(KNOWN_REASONING_EFFORTS)}"
+                            )
+                        entry[k] = v
+                    else:
+                        entry[k] = v
+                else:
+                    raise ValueError(
+                        f"--model {spec!r}: unknown model capability {k!r}. "
+                        f"Known: {sorted(_MODEL_SPEC_BOOL_KEYS | _MODEL_SPEC_INT_KEYS | _MODEL_SPEC_STR_KEYS)}"
+                    )
+            else:
+                key = part.strip()
+                if key not in _MODEL_SPEC_BOOL_KEYS:
+                    raise ValueError(
+                        f"--model {spec!r}: unknown model capability {key!r}. "
+                        f"Bare keys must be boolean flags."
+                    )
+                entry[key] = True
+        # Mirror display_name -> display kwarg expected by _build_model.
+        out.append(entry)
+    return out
+
+
 def _provider_from_args(args: argparse.Namespace) -> ProviderConfig:
     models: list[ModelConfig] = []
-    for m in args.model:
+    specs = parse_model_specs(args.model or [])
+    for s in specs:
         models.append(_build_model(
-            name=m,
-            display=args.model_display,
-            reasoning=args.reasoning_effort,
-            max_tokens=args.max_tokens,
-            max_out=args.max_output_tokens,
-            images=args.images,
-            interleaved=args.interleaved_reasoning,
-            max_param=args.max_tokens_parameter,
+            name=s["name"],
+            display=s.get("display_name") or args.model_display,
+            reasoning=s.get("reasoning_effort") or args.reasoning_effort,
+            max_tokens=s.get("max_tokens", args.max_tokens),
+            max_out=s.get("max_output_tokens", args.max_output_tokens),
+            images=s.get("images", args.images),
+            interleaved=s.get("interleaved_reasoning", args.interleaved_reasoning),
+            max_param=s.get("max_tokens_parameter", args.max_tokens_parameter),
         ))
     if not models and args.model_name:
         models.append(_build_model(
@@ -784,7 +921,8 @@ def _provider_from_args(args: argparse.Namespace) -> ProviderConfig:
         ))
     if not models:
         raise SystemExit(
-            "No model specified. Use --model NAME (repeatable) or --model-name."
+            "No model specified. Use --model NAME[:KEY=VAL]... (repeatable) "
+            "or --model-name."
         )
     return ProviderConfig(
         provider_name=args.provider,

@@ -285,11 +285,7 @@ def test_cli_conflict_append_against_single_provider_rejected(monkeypatch, tmp_p
 
 
 def test_cli_ctrl_c_exits_cleanly(monkeypatch, capsys, tmp_path):
-    """Ctrl+C during the interactive wizard prints cancellation, not a traceback.
-
-    Requires a clean (no-profile) state so bare `byop` falls into the wizard.
-    Use a tmp BYOP_CONFIG_DIR so the real user profile doesn't interfere.
-    """
+    """Ctrl+C during the interactive wizard prints cancellation, not a traceback."""
     monkeypatch.setenv("BYOP_CONFIG_DIR", str(tmp_path))
 
     def raise_keyboard_interrupt():
@@ -301,3 +297,42 @@ def test_cli_ctrl_c_exits_cleanly(monkeypatch, capsys, tmp_path):
 
     assert rc == 130
     assert "Cancelled." in capsys.readouterr().out
+
+
+def test_cli_session_loop_quits(monkeypatch, tmp_path):
+    """Bare byop with an existing profile enters the session loop and quits."""
+    monkeypatch.setenv("BYOP_CONFIG_DIR", str(tmp_path))
+
+    from byop.core import profiles as prof
+    from byop.core.config import ModelConfig, ProviderConfig
+
+    provider = ProviderConfig(
+        provider_name="T",
+        api_url="https://x",
+        api_key="sk-tes",
+        models=[ModelConfig(name="m", max_tokens=1000, max_output_tokens=100)],
+    )
+    prof.save_profile(
+        prof.profile_from_provider(provider, name=prof.DEFAULT_PROFILE_NAME),
+        api_key="sk-tes",
+    )
+
+    # Drive the session loop: status prints, then user picks "quit".
+    call_count = {"status": 0}
+
+    orig_status = cli._run_status
+
+    def fake_status():
+        call_count["status"] += 1
+        return orig_status()
+
+    def fake_ask(prompt_text, default=""):
+        return "quit"
+
+    monkeypatch.setattr(cli, "_run_status", fake_status)
+    monkeypatch.setattr(cli.prompt, "ask", fake_ask)
+
+    rc = cli.main([])
+
+    assert rc == 0
+    assert call_count["status"] >= 1

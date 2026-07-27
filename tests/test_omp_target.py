@@ -1,6 +1,5 @@
 """Tests for the Oh My Pi (omp) target."""
 
-import json
 import sys
 from pathlib import Path
 from unittest import mock
@@ -25,9 +24,9 @@ def _provider(**over):
 
 
 def test_omp_default_path():
-    """OmpTarget defaults to ~/.omp/agent/models.json, NOT py.dev's path."""
+    """OmpTarget defaults to ~/.omp/agent/models.yml, NOT py.dev's models.json."""
     target = OmpTarget()
-    assert target.models_path == Path.home() / ".omp" / "agent" / "models.json"
+    assert target.models_path == Path.home() / ".omp" / "agent" / "models.yml"
     # Sanity check it is distinct from PyTarget's default.
     assert target.models_path != PyTarget().models_path
 
@@ -38,15 +37,16 @@ def test_omp_is_py_target_subclass():
 
 
 def test_omp_configure_writes_to_omp_path(tmp_path):
-    models = tmp_path / "models.json"
+    """omp reads ~/.omp/agent/models.yml (NOT models.json)."""
+    models = tmp_path / "models.yml"
     target = OmpTarget(models_path=models)
     with mock.patch.object(target, "install"), \
          mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
         target.configure(_provider(), log=lambda m: None)
-    data = json.loads(models.read_text())
-    assert "HyberOrbit" in data["providers"]
-    # Inherited from PyTarget — the apiKey is a keychain shell-out.
-    assert data["providers"]["HyberOrbit"]["apiKey"].startswith("!security")
+    text = models.read_text()
+    assert "HyberOrbit:" in text
+    # apiKey is the keychain shell-out — not the literal key.
+    assert "!security find-internet-password" in text
 
 
 def test_omp_install_via_brew_when_present():
@@ -79,6 +79,35 @@ def test_omp_registered_with_default_registry():
     assert "ClaudeTarget" in names
     assert "PyTarget" in names
     assert "ZedTarget" in names
+
+
+def test_omp_warns_when_appending_under_suffix(tmp_path):
+    """When omp already has HyberOrbit and --conflict append fires,
+    the user must be warned the new entry landed under HyberOrbit_2
+    (silent duplicates are a UX trap)."""
+    models = tmp_path / "models.yml"
+    # Write initial as YAML
+    models.write_text(
+        "providers:\n  HyberOrbit:\n    baseUrl: https://x/v1\n    api: openai-completions\n"
+        "    apiKey: !anything\n    authHeader: true\n    models: []\n"
+    )
+    target = OmpTarget(models_path=models)
+    messages = []
+    with mock.patch.object(target, "install"), \
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
+        target.configure(
+            _provider(), conflict_action="append",
+            log=lambda m: messages.append(m),
+        )
+    assert any("HyberOrbit_2" in m for m in messages), (
+        f"append must name the suffixed provider; got: {messages}"
+    )
+    # And there must be a visible "warning" line so silent duplicate
+    # accumulation doesn't catch the user off guard.
+    assert any(
+        m.lower().startswith("warning") or "previous" in m.lower()
+        for m in messages
+    ), f"append must emit a Warning line; got: {messages}"
 
 
 def test_omp_detect_installed_uses_PATH_or_dir():

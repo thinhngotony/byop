@@ -146,7 +146,8 @@ class PyTarget:
 
         if dry_run:
             fragment = self.build_fragment(provider)
-            log("[dry-run] py.dev would write the following models.json fragment:")
+            log(f"[dry-run] {self.display_name} would write the following "
+                f"models.json fragment:")
             log(json.dumps(fragment, indent=2))
             return
 
@@ -159,8 +160,8 @@ class PyTarget:
         if provider.provider_name in existing_providers:
             if conflict_action == "skip":
                 log(
-                    f"Skip: py.dev already has {provider.provider_name}; "
-                    f"leaving models.json untouched."
+                    f"Skip: {self.display_name} already has "
+                    f"{provider.provider_name}; leaving models.json untouched."
                 )
                 # Note: unlike ZedTarget, PyTarget 'skip' short-circuits on
                 # provider-name match alone (models.json has no api_url next
@@ -174,8 +175,14 @@ class PyTarget:
                     i += 1
                 name_to_write = f"{provider.provider_name}_{i}"
                 log(
-                    f"Append: py.dev already has {provider.provider_name}; "
-                    f"writing under {name_to_write}."
+                    f"Append: {self.display_name} already has "
+                    f"{provider.provider_name}; writing under {name_to_write}."
+                )
+                log(
+                    f"Warning: the previous {provider.provider_name!r} entry "
+                    f"is left in place; you now have two entries sharing that "
+                    f"name. Pass --conflict replace to overwrite, or --conflict "
+                    f"skip to keep the previous one."
                 )
                 # The appended entry will reference the same keychain server
                 # (derived from api_url) as the original, so they share the
@@ -205,7 +212,7 @@ class PyTarget:
         providers = current.setdefault("providers", {})
         providers[name_to_write] = fragment["providers"][provider.provider_name]
         self._write(current)
-        log(f"Updated py.dev models at {self.models_path}")
+        log(f"Updated {self.display_name} models at {self.models_path}")
         if fragment["providers"][provider.provider_name]["apiKey"].startswith("!"):
             log("API key is read from the macOS keychain at runtime (secure).")
         else:
