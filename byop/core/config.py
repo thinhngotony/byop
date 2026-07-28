@@ -47,7 +47,7 @@ class ModelConfig:
     max_tokens: int = DEFAULT_MAX_TOKENS
     max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS
     reasoning_effort: str | None = None
-    capabilities: dict = field(default_factory=dict)
+    capabilities: dict[str, bool | int | str] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         """Serialize to a Zed ``available_models`` entry."""
