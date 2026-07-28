@@ -11,6 +11,7 @@ dotfiles, but we also support writing the env var to a profile as a fallback.
 
 from __future__ import annotations
 
+import shlex
 import subprocess
 from collections.abc import Callable
 from pathlib import Path
@@ -54,8 +55,17 @@ def security_command_ref(server: str, account: str = "Bearer") -> str:
     Targets embed this verbatim in their settings JSON for the ``apiKey``
     field, so the editor reads the secret at request time without ever
     persisting plaintext.
+
+    The ``server`` and ``account`` values are shell-quoted with
+    :func:`shlex.quote` to prevent injection when the editor interprets
+    the ``!command`` reference.
     """
-    return f"!security find-internet-password -s {server} -a {account} -w"
+    return (
+        f"!security find-internet-password"
+        f" -s {shlex.quote(server)}"
+        f" -a {shlex.quote(account)}"
+        f" -w"
+    )
 
 
 def keychain_get(server: str, account: str = "Bearer") -> str | None:
@@ -75,32 +85,26 @@ def keychain_get(server: str, account: str = "Bearer") -> str | None:
 
 
 def keychain_set(server: str, api_key: str, account: str = "Bearer") -> None:
-    """Store (or replace) the API key in the login keychain."""
+    """Store (or replace) the API key in the login keychain.
 
-    # Remove any pre-existing entry to avoid duplicates. Failure here is
-    # not necessarily fatal (e.g. nothing to delete), but we surface the
-    # stderr so add-internet-password failures aren't attributed to it.
-    rm = _run(["security", "delete-internet-password", "-s", server, "-a", account])
-    if rm.returncode not in (0, _SECURITY_ITEM_NOT_FOUND):
-        raise RuntimeError(
-            "Failed to remove existing keychain entry:\n" + (rm.stderr or "")
-        )
-    # Write to the login keychain without a -T trust restriction (an empty
-    # -T path is invalid). The first app to read the entry will prompt for
-    # access, which is the secure default.
-    res = _run(
-        [
-            "security",
-            "add-internet-password",
-            "-a",
-            account,
-            "-s",
-            server,
-            "-w",
-            api_key,
-            LOGIN_KEYCHAIN,
-        ]
-    )
+    Uses ``-U`` (update) so the operation is atomic: if the entry exists it
+    is updated in place; if it does not exist ``-U`` is silently ignored and
+    the entry is created.  This avoids the old delete-then-add sequence
+    that could lose the existing key if the add failed.
+    """
+    cmd = [
+        "security",
+        "add-internet-password",
+        "-U",
+        "-a",
+        account,
+        "-s",
+        server,
+        "-w",
+        api_key,
+        LOGIN_KEYCHAIN,
+    ]
+    res = _run(cmd)
     if res.returncode != 0:
         raise RuntimeError(
             "Failed to store API key in keychain:\n" + (res.stderr or "")
