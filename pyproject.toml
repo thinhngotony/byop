@@ -57,3 +57,6 @@ warn_unused_ignores = false
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+[tool.setuptools.package-data]
+byop = ["py.typed"]
