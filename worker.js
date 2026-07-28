@@ -23,7 +23,7 @@ export default {
       // fall through with 'latest'
     }
 
-    const ref = version !== "latest" ? version : "master";
+    const ref = version !== "latest" ? version : "main";
     const base = `https://raw.githubusercontent.com/${REPO}/${ref}`;
 
     const routes = {
