@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 from unittest import mock
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from byop.core.config import ModelConfig, ProviderConfig
@@ -56,6 +58,7 @@ def test_opencode_falls_back_to_literal_key_when_keychain_missing():
     assert frag["provider"]["HyberOrbit"]["options"]["apiKey"] == "sk-12345678"
 
 
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS keychain required")
 def test_opencode_configure_writes_merges_preserves_other_providers(tmp_path):
     cfg = tmp_path / "opencode.json"
     cfg.parent.mkdir(parents=True, exist_ok=True)
@@ -79,6 +82,7 @@ def test_opencode_configure_writes_merges_preserves_other_providers(tmp_path):
     assert data["permission"]["bash"] == "ask"
 
 
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS keychain required")
 def test_opencode_skip_when_existing_provider(tmp_path):
     cfg = tmp_path / "opencode.json"
     cfg.write_text(
@@ -103,6 +107,7 @@ def test_opencode_skip_when_existing_provider(tmp_path):
     assert data["provider"]["HyberOrbit"]["name"] == "old"
 
 
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS keychain required")
 def test_opencode_append_when_existing_provider(tmp_path):
     cfg = tmp_path / "opencode.json"
     cfg.write_text(
