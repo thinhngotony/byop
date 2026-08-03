@@ -9,6 +9,7 @@ plus the pure functions that turn it into the relevant fragments of Zed's
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from urllib.parse import urlparse
 
@@ -47,7 +48,7 @@ class ModelConfig:
     max_tokens: int = DEFAULT_MAX_TOKENS
     max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS
     reasoning_effort: str | None = None
-    capabilities: dict = field(default_factory=dict)
+    capabilities: Mapping[str, bool | int | str] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         """Serialize to a Zed ``available_models`` entry."""
