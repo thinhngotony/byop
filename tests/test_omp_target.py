@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 from unittest import mock
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from byop.core.config import ModelConfig, ProviderConfig
@@ -36,6 +38,7 @@ def test_omp_is_py_target_subclass():
     assert issubclass(OmpTarget, PyTarget)
 
 
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS keychain required")
 def test_omp_configure_writes_to_omp_path(tmp_path):
     """omp reads ~/.omp/agent/models.yml (NOT models.json)."""
     models = tmp_path / "models.yml"
@@ -81,6 +84,7 @@ def test_omp_registered_with_default_registry():
     assert "ZedTarget" in names
 
 
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS keychain required")
 def test_omp_warns_when_appending_under_suffix(tmp_path):
     """When omp already has HyberOrbit and --conflict append fires,
     the user must be warned the new entry landed under HyberOrbit_2
