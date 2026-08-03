@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 from unittest import mock
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from byop.core.config import ModelConfig, ProviderConfig
@@ -82,6 +84,7 @@ def test_build_fragment_shape():
     assert frag["models"][0]["context_window"] == 250000
 
 
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS keychain required")
 def test_configure_writes_settings_json_with_keychain_command(tmp_path):
     """Keychain `!command` is the default apiKey reference when entry exists."""
     settings = tmp_path / "settings.json"
@@ -95,6 +98,7 @@ def test_configure_writes_settings_json_with_keychain_command(tmp_path):
     assert data["apiKey"].startswith("!security find-internet-password")
 
 
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS keychain required")
 def test_configure_writes_literal_key_when_no_keychain_entry(tmp_path):
     settings = tmp_path / "settings.json"
     target = ClaudeTarget(settings_path=settings)
