@@ -116,6 +116,7 @@ tools and asks which to configure:
 | `--no-keychain` | Skip the macOS keychain (falls back to an embedded key — less secure). |
 | `--env-key` | Also export the key as a shell environment variable. |
 | `--skip-install` | Configure settings only; do not install/upgrade any app. |
+| `--version` | Print version and exit |
 | `--export-config` | Print the byop-managed slice of each target's settings as JSON and exit (no writes). Combine with `--target` and `--export-provider` to filter. |
 
 Repeat `--model` for multiple models; the **first** becomes the default for
