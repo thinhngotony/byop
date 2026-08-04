@@ -85,17 +85,11 @@ def keychain_get(server: str, account: str = "Bearer") -> str | None:
 
 
 def keychain_set(server: str, api_key: str, account: str = "Bearer") -> None:
-    """Store (or replace) the API key in the login keychain.
-
-    Uses ``-U`` (update) so the operation is atomic: if the entry exists it
-    is updated in place; if it does not exist ``-U`` is silently ignored and
-    the entry is created.  This avoids the old delete-then-add sequence
-    that could lose the existing key if the add failed.
-    """
+    """Store (or replace) the API key in the login keychain."""
+    keychain_delete(server, account)
     cmd = [
         "security",
         "add-internet-password",
-        "-U",
         "-a",
         account,
         "-s",
@@ -109,7 +103,6 @@ def keychain_set(server: str, api_key: str, account: str = "Bearer") -> None:
         raise RuntimeError(
             "Failed to store API key in keychain:\n" + (res.stderr or "")
         )
-
 
 def keychain_delete(server: str, account: str = "Bearer") -> None:
     """Remove the keychain entry if it exists.
