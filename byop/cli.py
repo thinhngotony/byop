@@ -47,12 +47,13 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", metavar="COMMAND")
 
     # ---- status (default) ------------------------------------------------
-    sub.add_parser(
+    status_p = sub.add_parser(
         "status",
         help="Show the current profile + per-target state (read-only).",
         description="Read-only dashboard. Same as running `byop` with no "
         "subcommand. Does not modify any files.",
     )
+    _add_omp_path_args(status_p)
 
     # ---- apply -----------------------------------------------------------
     apply_p = sub.add_parser(
@@ -84,12 +85,13 @@ def build_parser() -> argparse.ArgumentParser:
     del_p.add_argument("name", help="Profile name to delete.")
 
     # ---- doctor ----------------------------------------------------------
-    sub.add_parser(
+    doctor_p = sub.add_parser(
         "doctor",
         help="Detect drift between the active profile and current targets.",
         description="Compares the active profile against each target's "
         "actual settings.json / models.json and reports drift. Read-only.",
     )
+    _add_omp_path_args(doctor_p)
 
     # ---- export-config ---------------------------------------------------
     exp_p = sub.add_parser(
@@ -104,6 +106,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     return p
+
+def _add_omp_path_args(p: argparse.ArgumentParser) -> None:
+    p.add_argument(
+        "--profile",
+        dest="omp_profile",
+        help="OMP profile name (writes ~/.omp/profiles/NAME/agent/models.yml).",
+    )
+    p.add_argument(
+        "--omp-models-path",
+        type=Path,
+        help="Explicit OMP models.yml path (overrides --profile).",
+    )
 
 
 def _add_apply_args(p: argparse.ArgumentParser) -> None:
@@ -141,6 +155,16 @@ def _add_apply_args(p: argparse.ArgumentParser) -> None:
         choices=["zed", "py", "omp", "claude", "opencode"],
         help="Restrict to specific target(s): zed, py, omp, claude, opencode "
         "(repeatable). Defaults to all detected/installed apps.",
+    )
+    p.add_argument(
+        "--profile",
+        dest="omp_profile",
+        help="OMP profile name (writes ~/.omp/profiles/NAME/agent/models.yml).",
+    )
+    p.add_argument(
+        "--omp-models-path",
+        type=Path,
+        help="Explicit OMP models.yml path (overrides --profile).",
     )
     p.add_argument(
         "--config-file",
@@ -216,14 +240,11 @@ def _inject_default_subcommand(argv: list[str] | None) -> list[str]:
     """
     if argv is None:
         argv = []
-    # Help/version short-circuit: leave argv alone so the global help shows.
     if any(t in argv for t in ("-h", "--help", "--version")):
         return list(argv)
     known = {"status", "apply", "profile", "doctor", "export-config"}
     for tok in argv:
-        if tok in known:
-            return list(argv)
-        if tok == "--":
+        if tok in known or tok == "--":
             return list(argv)
     if not argv:
         return list(argv)
@@ -232,17 +253,23 @@ def _inject_default_subcommand(argv: list[str] | None) -> list[str]:
 
 def _dispatch(parser, args) -> int:
     if args.command == "status":
-        return _run_status()
+        return _run_status(
+            omp_profile=getattr(args, "omp_profile", None),
+            omp_models_path=getattr(args, "omp_models_path", None),
+        )
     if args.command == "apply":
         return _run_apply(args)
     if args.command == "profile":
         return _run_profile(args)
     if args.command == "doctor":
-        return _run_doctor()
+        return _run_doctor(
+            omp_profile=getattr(args, "omp_profile", None),
+            omp_models_path=getattr(args, "omp_models_path", None),
+        )
     if args.command == "export-config":
         return _run_export(args)
     parser.error(f"Unknown command: {args.command}")
-    return 2  # unreachable
+    return 2
 
 
 def _route_bare(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
@@ -349,9 +376,6 @@ def _run_first_run_wizard() -> int:
     args = _make_args_for_apply(profile, api_key, prefs)
     return _run_apply(args)
 
-
-def _make_args_for_apply(profile, api_key, prefs):
-    """Build an argparse.Namespace for ``_run_apply`` from a Profile."""
     primary = profile.models[0] if profile.models else None
     args = argparse.Namespace(
         settings=Path.home() / ".config" / "zed" / "settings.json",
@@ -360,6 +384,8 @@ def _make_args_for_apply(profile, api_key, prefs):
         env_key=prefs.get("use_env", False),
         skip_install=False,
         target=[],
+        omp_profile=None,
+        omp_models_path=None,
         config_file=None,
         conflict=None,
         provider=profile.provider_name,
@@ -392,7 +418,9 @@ def _make_args_for_apply(profile, api_key, prefs):
 # ===========================================================================
 # status / apply / profile / doctor / export-config
 # ===========================================================================
-def _run_status() -> int:
+def _run_status(
+    *, omp_profile: str | None = None, omp_models_path: Path | None = None
+) -> int:
     """Print a status dashboard for the active profile + each target."""
     from .core import profiles as prof
     from .core.targets import available_targets
@@ -402,7 +430,12 @@ def _run_status() -> int:
         return 0
 
     profile = prof.load_profile()
-    targets = available_targets(settings_path=Path.home() / ".config" / "zed" / "settings.json")
+    target_kwargs = {"settings_path": Path.home() / ".config" / "zed" / "settings.json"}
+    if omp_profile is not None:
+        target_kwargs["omp_profile"] = omp_profile
+    if omp_models_path is not None:
+        target_kwargs["omp_models_path"] = omp_models_path
+    targets = available_targets(**target_kwargs)
 
     prompt.header("byop — Bring Your Own Provider")
     prompt.info(f"Profile: [bold]{profile.name}[/bold]  ({profile.provider_name})")
@@ -708,7 +741,9 @@ def _profile_edit_interactive() -> int:
     return 0
 
 
-def _run_doctor() -> int:
+def _run_doctor(
+    *, omp_profile: str | None = None, omp_models_path: Path | None = None
+) -> int:
     """Detect drift between the active profile and each target's actual config."""
     from .core import profiles as prof
     from .core.targets import available_targets
@@ -717,7 +752,12 @@ def _run_doctor() -> int:
         prompt.warn("No active profile to check against.")
         return 0
     saved = prof.load_profile()
-    targets = available_targets(settings_path=Path.home() / ".config" / "zed" / "settings.json")
+    target_kwargs = {"settings_path": Path.home() / ".config" / "zed" / "settings.json"}
+    if omp_profile is not None:
+        target_kwargs["omp_profile"] = omp_profile
+    if omp_models_path is not None:
+        target_kwargs["omp_models_path"] = omp_models_path
+    targets = available_targets(**target_kwargs)
 
     issues = 0
     prompt.header("byop doctor")
@@ -940,7 +980,12 @@ def _provider_from_args(args: argparse.Namespace) -> ProviderConfig:
 def _select_targets(args, provider: ProviderConfig | None) -> list:
     from .core.targets import available_targets, detect_installed
 
-    all_targets = available_targets(settings_path=args.settings)
+    target_kwargs = {"settings_path": args.settings}
+    if getattr(args, "omp_profile", None) is not None:
+        target_kwargs["omp_profile"] = args.omp_profile
+    if getattr(args, "omp_models_path", None) is not None:
+        target_kwargs["omp_models_path"] = args.omp_models_path
+    all_targets = available_targets(**target_kwargs)
     by_name = {t.name: t for t in all_targets}
 
     if args.target:

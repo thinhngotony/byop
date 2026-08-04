@@ -24,16 +24,19 @@ ALL_TARGETS: list[type[Target]] = [
 ]
 
 
-def available_targets(settings_path: Path | None = None) -> list[Target]:
-    """Instantiate every registered target with its default paths.
-
-    ``settings_path`` (if given) is forwarded to targets that accept a
-    settings file (currently Zed) so callers can override the location.
-    """
+def available_targets(
+    settings_path: Path | None = None,
+    *,
+    omp_profile: str | None = None,
+    omp_models_path: Path | None = None,
+) -> list[Target]:
+    """Instantiate registered targets with optional per-target paths."""
     targets: list[Target] = []
     for cls in ALL_TARGETS:
         if cls is ZedTarget and settings_path is not None:
             targets.append(cls(settings_path=settings_path))
+        elif cls is OmpTarget:
+            targets.append(cls(models_path=omp_models_path, profile=omp_profile))
         else:
             targets.append(cls())
     return targets

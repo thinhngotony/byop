@@ -20,6 +20,14 @@ from .py import PyTarget
 DEFAULT_MODELS_PATH = Path.home() / ".omp" / "agent" / "models.yml"
 
 
+def profile_models_path(profile: str, config_root: Path | None = None) -> Path:
+    """Return the profile-scoped OMP models.yml path."""
+    if not profile or Path(profile).name != profile or profile in {".", ".."}:
+        raise ValueError("OMP profile must be a simple directory name")
+    root = config_root or (Path.home() / ".omp")
+    return root / "profiles" / profile / "agent" / "models.yml"
+
+
 def _run(cmd: list[str]) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, capture_output=True, text=True, check=False)
 
@@ -329,12 +337,19 @@ def _emit_models_yaml(data: dict) -> str:
                 lines.extend(_emit_value({key: val}, indent=8))
     return "\n".join(lines) + "\n"
 
-
 class OmpTarget(PyTarget):
     name = "omp"
     display_name = "Oh My Pi (omp)"
 
-    def __init__(self, models_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        models_path: Path | None = None,
+        *,
+        profile: str | None = None,
+        config_root: Path | None = None,
+    ) -> None:
+        if models_path is None and profile is not None:
+            models_path = profile_models_path(profile, config_root)
         super().__init__(models_path=models_path or DEFAULT_MODELS_PATH)
 
     # omp reads ~/.omp/agent/models.yml (NOT models.json). Override _load /

@@ -31,6 +31,65 @@ def test_omp_default_path():
     assert target.models_path == Path.home() / ".omp" / "agent" / "models.yml"
     # Sanity check it is distinct from PyTarget's default.
     assert target.models_path != PyTarget().models_path
+def test_omp_profile_selects_profile_scoped_models_path(tmp_path, monkeypatch):
+    """A named OMP profile writes under its isolated agent root."""
+    monkeypatch.setattr("byop.core.targets.omp.Path.home", lambda: tmp_path)
+
+    target = OmpTarget(profile="hyberorbit")
+
+    assert target.models_path == (
+        tmp_path / ".omp" / "profiles" / "hyberorbit" / "agent" / "models.yml"
+    )
+
+
+def test_omp_explicit_models_path_overrides_profile(tmp_path):
+    """An explicit path remains the deterministic escape hatch for callers."""
+    models = tmp_path / "custom" / "models.yml"
+
+    target = OmpTarget(profile="hyberorbit", models_path=models)
+
+    assert target.models_path == models
+
+def test_omp_profile_uses_explicit_config_root(tmp_path):
+    """Callers can target a non-default OMP config root deterministically."""
+    target = OmpTarget(profile="hyberorbit", config_root=tmp_path)
+
+    assert target.models_path == (
+        tmp_path / "profiles" / "hyberorbit" / "agent" / "models.yml"
+    )
+
+
+def test_omp_profile_configure_does_not_touch_global_models(tmp_path, monkeypatch):
+    """Profile onboarding must not modify the global or another profile root."""
+    monkeypatch.setattr("byop.core.targets.omp.Path.home", lambda: tmp_path)
+    global_models = tmp_path / ".omp" / "agent" / "models.yml"
+    other_models = tmp_path / ".omp" / "profiles" / "other" / "agent" / "models.yml"
+    global_models.parent.mkdir(parents=True)
+    other_models.parent.mkdir(parents=True)
+    global_models.write_text("providers:\n  Global: {}\n")
+    other_models.write_text("providers:\n  Other: {}\n")
+
+    target = OmpTarget(profile="hyberorbit")
+    with mock.patch.object(target, "install"), \
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
+        target.configure(_provider(), log=lambda m: None)
+
+    assert "Global" in global_models.read_text()
+    assert "Other" in other_models.read_text()
+    assert "HyberOrbit:" in target.models_path.read_text()
+
+
+def test_omp_configure_never_writes_literal_secret_with_keychain(tmp_path):
+    """The API key stays out of models.yml when keychain lookup succeeds."""
+    models = tmp_path / "models.yml"
+    target = OmpTarget(models_path=models)
+    with mock.patch.object(target, "install"), \
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
+        target.configure(_provider(), log=lambda m: None)
+
+    text = models.read_text()
+    assert _provider().api_key not in text
+    assert "!security find-internet-password" in text
 
 
 def test_omp_is_py_target_subclass():
