@@ -49,6 +49,38 @@ def test_cli_dry_run_non_interactive(monkeypatch):
     assert calls["configure"] == 1
 
 
+def test_cli_uses_first_model_for_agent_defaults(monkeypatch):
+    captured = {}
+
+    class FakeTarget:
+        name = "zed"
+        display_name = "Zed"
+
+        def is_installed(self):
+            return True
+
+        def install(self, log=print):
+            pass
+
+        def configure(self, provider, **kwargs):
+            captured["provider"] = provider
+
+        def current_provider_names(self):
+            return []
+
+    import byop.core.targets as tmod
+    monkeypatch.setattr(tmod, "available_targets", lambda settings_path=None: [FakeTarget()])
+    monkeypatch.setattr(tmod, "detect_installed", lambda targets: targets)
+
+    assert cli.main([
+        "--provider", "P", "--api-url", "https://api.example.com/v1",
+        "--api-key", "sk-x", "--model", "new-model",
+    ]) == 0
+    provider = captured["provider"]
+    assert provider.set_default_agent is True
+    assert provider.set_inline_assistant is True
+    assert provider.models[0].name == "new-model"
+
 def test_cli_non_interactive_requires_provider(monkeypatch, capsys):
     rc = cli.main(["--api-url", "https://api.example.com/v1"])
     assert rc == 2
