@@ -44,10 +44,9 @@ writes your secret to disk in plaintext.
 | `py` (py.dev / Pi) | `~/.pi/agent/models.json` | Homebrew cask |
 | `omp` (oh-my-pi / Oh My Pi) | `~/.omp/agent/models.json` | `brew install can1357/tap/omp` / `curl -fsSL https://omp.sh/install | sh` |
 | `claude` (Claude Code) | `~/.claude/settings.json` | `brew install --cask claude-code` / `npm i -g @anthropic-ai/claude-code` / `curl -fsSL https://claude.ai/install.sh | sh` |
+| `warp` (Warp) | `~/.warp/settings.toml` (read-only) | Homebrew cask / https://www.warp.dev/download |
 
-> Platform: **macOS**. The keychain integration is macOS-specific; the
-> architecture is built so other platforms/tools can be added behind the same
-> `Target` interface.
+Warp support currently prints exact values for manual entry in Warp Settings > AI > Custom inference endpoint. Warp's endpoint TOML schema is undocumented and unverified, so byop never guesses keys or writes the settings file; API keys are redacted from output. Warp requires a public HTTPS endpoint (local/private URLs are rejected). `--conflict replace` and `skip` are accepted; `append` is rejected because Warp has one active endpoint.
 
 ## Installation
 
@@ -108,8 +107,7 @@ tools and asks which to configure:
 
 | Flag | Purpose |
 | --- | --- |
-| `--target {zed,py,omp,claude}` | Configure only the named target(s); repeatable. Defaults to all detected apps. |
-| `--config-file PATH` | Path to a JSON file with provider fields (`provider_name`, `api_url`, `api_key`, `models`). Overrides per-flag values. Useful for scripts and re-runs. |
+| `--target {zed,py,omp,claude,opencode,warp}` | Configure only the named target(s); repeatable. Defaults to all detected apps. |
 | `--conflict {replace,skip,append,prompt}` | What to do when a provider with the same name already exists on a target. Default: prompt interactively; `replace` for zed/claude, `append` for py/omp in non-interactive mode. |
 | `--settings PATH` | Override the Zed settings path (default `~/.config/zed/settings.json`). |
 | `--dry-run` | Print the configuration fragments that *would* be written; change nothing. |
@@ -118,6 +116,11 @@ tools and asks which to configure:
 | `--skip-install` | Configure settings only; do not install/upgrade any app. |
 | `--version` | Print version and exit |
 | `--export-config` | Print the byop-managed slice of each target's settings as JSON and exit (no writes). Combine with `--target` and `--export-provider` to filter. |
+
+Warp smoke check (uses a temporary settings path and never touches live settings/keychain):
+```bash
+python -c 'from pathlib import Path; from byop.core.targets.warp import WarpTarget; p=Path("/tmp/byop-warp-settings.toml"); t=WarpTarget(p); print(t.is_installed(), t.settings_path); t.configure(__import__("byop.core.config", fromlist=["ProviderConfig"]).ProviderConfig("Demo", "https://api.example.com/v1", "secret-key-123", [__import__("byop.core.config", fromlist=["ModelConfig"]).ModelConfig("model")]), dry_run=True)'
+```
 
 Repeat `--model` for multiple models; the **first** becomes the default for
 features that take a single model.

@@ -12,6 +12,7 @@ from .claude import ClaudeTarget
 from .omp import OmpTarget
 from .opencode import OpencodeTarget
 from .py import PyTarget
+from .warp import WarpTarget
 from .zed import ZedTarget
 
 # Targets that are fully implemented and offered to the user.
@@ -21,6 +22,7 @@ ALL_TARGETS: list[type[Target]] = [
     ClaudeTarget,
     OmpTarget,
     OpencodeTarget,
+    WarpTarget,
 ]
 
 

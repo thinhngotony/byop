@@ -2,7 +2,6 @@
 
 Subcommand structure (since v2.0.0):
 
-  byop                          # status dashboard (or wizard on first run)
   byop status                   # same as bare `byop` — read-only dashboard
   byop apply [flags]            # sync active profile to selected targets
   byop profile {list,use,new,edit,delete,export}
@@ -19,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from importlib.metadata import version as _pkg_version
 from pathlib import Path
@@ -152,9 +152,8 @@ def _add_apply_args(p: argparse.ArgumentParser) -> None:
         "--target",
         action="append",
         default=[],
-        choices=["zed", "py", "omp", "claude", "opencode"],
-        help="Restrict to specific target(s): zed, py, omp, claude, opencode "
-        "(repeatable). Defaults to all detected/installed apps.",
+        choices=["zed", "py", "omp", "claude", "opencode", "warp"],
+        help="Restrict to specific target(s): zed, py, omp, claude, opencode, warp (repeatable). Defaults to all detected/installed apps.",
     )
     p.add_argument(
         "--profile",
@@ -341,9 +340,9 @@ def _run_default_landing() -> int:
             profile = prof.load_profile()
             if profile.api_key_ref == "keychain":
                 from .core import keychain as kc
-                api_key = kc.keychain_get(profile.keychain_server()) or ""
+                api_key = kc.keychain_get(profile.api_url.rstrip("/")) or ""
             else:
-                api_key = profile.api_key
+                api_key = os.environ.get(profile.env_var or profile.api_key_ref.removeprefix("env:"), "")
             args = _make_args_for_apply(
                 profile,
                 api_key,
@@ -377,7 +376,7 @@ def _run_first_run_wizard() -> int:
     # Continue with apply flow using the same provider.
     args = _make_args_for_apply(profile, api_key, prefs)
     return _run_apply(args)
-
+def _make_args_for_apply(profile, api_key, prefs):
     primary = profile.models[0] if profile.models else None
     args = argparse.Namespace(
         settings=Path.home() / ".config" / "zed" / "settings.json",
@@ -432,12 +431,12 @@ def _run_status(
         return 0
 
     profile = prof.load_profile()
-    target_kwargs = {"settings_path": Path.home() / ".config" / "zed" / "settings.json"}
+    target_kwargs: dict[str, object] = {"settings_path": Path.home() / ".config" / "zed" / "settings.json"}
     if omp_profile is not None:
         target_kwargs["omp_profile"] = omp_profile
     if omp_models_path is not None:
         target_kwargs["omp_models_path"] = omp_models_path
-    targets = available_targets(**target_kwargs)
+    targets = available_targets(**target_kwargs)  # type: ignore[arg-type]
 
     prompt.header("byop — Bring Your Own Provider")
     prompt.info(f"Profile: [bold]{profile.name}[/bold]  ({profile.provider_name})")
@@ -754,12 +753,12 @@ def _run_doctor(
         prompt.warn("No active profile to check against.")
         return 0
     saved = prof.load_profile()
-    target_kwargs = {"settings_path": Path.home() / ".config" / "zed" / "settings.json"}
+    target_kwargs: dict[str, object] = {"settings_path": Path.home() / ".config" / "zed" / "settings.json"}
     if omp_profile is not None:
         target_kwargs["omp_profile"] = omp_profile
     if omp_models_path is not None:
         target_kwargs["omp_models_path"] = omp_models_path
-    targets = available_targets(**target_kwargs)
+    targets = available_targets(**target_kwargs)  # type: ignore[arg-type]
 
     issues = 0
     prompt.header("byop doctor")

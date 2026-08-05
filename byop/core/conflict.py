@@ -23,7 +23,7 @@ def default_conflict_action(target_name: str, *, interactive: bool) -> str | Non
     """
     if interactive:
         return None
-    return "replace" if target_name in {"zed", "claude"} else "append"
+    return "replace" if target_name in {"zed", "claude", "warp"} else "append"
 
 
 # Names of the targets that allow multiple concurrent provider entries.

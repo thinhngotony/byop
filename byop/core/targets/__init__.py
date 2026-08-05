@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from .claude import ClaudeTarget
     from .omp import OmpTarget
     from .py import PyTarget
+    from .warp import WarpTarget
     from .zed import ZedTarget
 
 # Lazy re-exports: these are only imported when accessed, so the
@@ -22,6 +23,7 @@ __all__ = [
     "PyTarget",
     "OmpTarget",
     "ClaudeTarget",
+    "WarpTarget",
     "ZedTarget",
     "ALL_TARGETS",
     "available_targets",
@@ -41,4 +43,7 @@ def __getattr__(name: str) -> object:
     if name == "ZedTarget":
         from .zed import ZedTarget
         return ZedTarget
+    if name == "WarpTarget":
+        from .warp import WarpTarget
+        return WarpTarget
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

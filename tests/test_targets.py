@@ -188,7 +188,8 @@ def test_py_configure_writes_models_json(tmp_path):
     models = tmp_path / "models.json"
     target = PyTarget(models_path=models)
     with mock.patch.object(target, "install"), \
-         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True), \
+         mock.patch("byop.core.targets.py.kc.ensure_key", return_value=["k"]):
         target.configure(_provider(), log=lambda m: None)
     data = json.loads(models.read_text())
     assert "ExampleProvider" in data["providers"]
@@ -202,7 +203,8 @@ def test_py_configure_merges_existing_providers(tmp_path):
     }))
     target = PyTarget(models_path=models)
     with mock.patch.object(target, "install"), \
-         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True), \
+         mock.patch("byop.core.targets.py.kc.ensure_key", return_value=["k"]):
         target.configure(_provider(), log=lambda m: None)
     data = json.loads(models.read_text())
     assert "ExampleProvider" in data["providers"]
@@ -226,7 +228,8 @@ def test_py_append_uses_numeric_suffix(tmp_path):
     }))
     target = PyTarget(models_path=models)
     with mock.patch.object(target, "install"), \
-         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True), \
+         mock.patch("byop.core.targets.py.kc.ensure_key", return_value=["k"]):
         target.configure(_provider(), conflict_action="append", log=lambda m: None)
     data = _json.loads(models.read_text())
     assert "ExampleProvider" in data["providers"]
@@ -248,7 +251,8 @@ def test_py_append_picks_next_available_suffix(tmp_path):
     }))
     target = PyTarget(models_path=models)
     with mock.patch.object(target, "install"), \
-         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True):
+         mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True), \
+         mock.patch("byop.core.targets.py.kc.ensure_key", return_value=["k"]):
         target.configure(_provider(), conflict_action="append", log=lambda m: None)
     data = _json.loads(models.read_text())
     assert "ExampleProvider_3" in data["providers"]
@@ -270,6 +274,7 @@ def test_py_skip_when_provider_exists(tmp_path):
 
     with mock.patch.object(target, "install"), \
          mock.patch("byop.core.targets.py.kc.keychain_has", return_value=True), \
+         mock.patch("byop.core.targets.py.kc.ensure_key", return_value=["k"]), \
          mock.patch.object(target, "_write", tracking):
         target.configure(_provider(), conflict_action="skip", log=lambda m: None)
     assert writes["count"] == 0
