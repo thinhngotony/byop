@@ -542,25 +542,24 @@ def _run_apply(args: argparse.Namespace) -> int:
     if not use_keychain and not use_env:
         use_env = True
 
-    # ---- Persist as profile (if the user provided values via flags, save
-    # a profile so the next `byop apply` is a one-keystroke experience).
-    from .core import profiles as prof
+    # Dry-run is read-only: do not persist profile metadata or secrets.
+    if not args.dry_run:
+        from .core import profiles as prof
 
-    profile_name = prof.get_active_profile_name()
-    profile = prof.profile_from_provider(
-        provider, name=profile_name,
-        api_key_ref="keychain" if use_keychain else f"env:{provider.env_var_name()}",
-    )
-    if prof.profile_exists(profile_name):
-        prof.save_profile(profile, allow_overwrite=True, api_key=api_key)
-        prompt.info(f"Updated saved profile {profile_name!r}.")
-    else:
-        prof.save_profile(profile, api_key=api_key)
-        prompt.info(f"Saved profile {profile_name!r} (active).")
-    # Keep the secret in the keychain for `api_key_ref == "keychain"`.
-    if use_keychain and api_key:
-        from .core import keychain as kc
-        kc.keychain_set(provider.keychain_server(), api_key)
+        profile_name = prof.get_active_profile_name()
+        profile = prof.profile_from_provider(
+            provider, name=profile_name,
+            api_key_ref="keychain" if use_keychain else f"env:{provider.env_var_name()}",
+        )
+        if prof.profile_exists(profile_name):
+            prof.save_profile(profile, allow_overwrite=True, api_key=api_key)
+            prompt.info(f"Updated saved profile {profile_name!r}.")
+        else:
+            prof.save_profile(profile, api_key=api_key)
+            prompt.info(f"Saved profile {profile_name!r} (active).")
+        if use_keychain and api_key:
+            from .core import keychain as kc
+            kc.keychain_set(provider.keychain_server(), api_key)
 
     # ---- Select targets --------------------------------------------------
     targets = _select_targets(args, provider)

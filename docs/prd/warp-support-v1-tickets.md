@@ -1,18 +1,39 @@
 # Warp support v1 implementation tickets
 
-Source: `docs/prd/warp-support-v1-prd.md` (reviewed PRD). Scope is P0 only; no commits, pushes, or PRs during implementation.
+Source: `docs/prd/warp-support-v1-prd.md` (reviewed PRD). Scope is P0 manual-paste support plus a gated P1 secure-storage automation investigation; no commits, pushes, or PRs during implementation.
+
+## Cross-cutting release gates
+
+- **Source-verified storage only:** Warp source confirms the logical `ApiKeys.custom_endpoints` / `CustomEndpoint` model and `AiApiKeys` secure-storage key, but automation is not supported until Dev identifies and round-trips the installed build's exact OS secure-storage service/key, encoding, and ownership behavior. This is private Rust-internal reverse engineering, not a supported Warp CLI/API. Guessed records, UUIDs, schemas, or writes that could overwrite unrelated credentials are prohibited.
+- **Disposable-first E2E:** Before any write Warp MUST be quit; the raw whole `AiApiKeys` blob MUST be backed up and restoration proven. Any read-modify-write must preserve `google`, `anthropic`, `openai`, `open_router`, and every existing custom endpoint; never create a fresh replacement blob. Storage experiments must use isolated temporary `HOME`/config and a disposable secure-storage backup or mock, prove write/read/model-picker round trip, and restore it before any live operation. Live automation requires explicit user confirmation after that evidence; otherwise report the exact blocker and do not claim Warp active. Warp updates may change private internals; final reporting must state this update-breakage ceiling.
+- **Dry-run bugfix:** The dry-run guard must precede profile save, keychain write, env/profile persistence, settings write, and every other secret-bearing side effect. Regression tests must prove isolated profile/config/keychain mocks remain unchanged.
+- **Secret safety:** Tests and diagnostics never mutate live settings/keychain or expose plaintext keys; exports and dry-run output redact secrets.
 
 ## Dependency order and ownership
 
-| Ticket | Priority | P0 acceptance coverage | Depends on | Assignment |
+| Ticket | Priority | P0/P1 acceptance coverage | Depends on | Assignment |
 |---|---|---|---|---|
 | WARP-E2E | P0 | Temp-settings/macOS smoke: detect installed Warp, report version/path, exercise dry-run and redacted manual-paste output without live settings/keychain | None | Dev, then QA |
 | WARP-1 | P0 | Discovery and registry; target protocol integration; CLI selection | None | Dev |
 | WARP-2 | P0 | Safe documented/general TOML read/merge/write, unrelated-table preservation, manual-paste output and redaction, no undocumented endpoint writes | WARP-1 | Dev |
 | WARP-3 | P0 | Conflict behavior and public HTTPS/private endpoint validation | WARP-1, WARP-2 | Dev |
 | WARP-4 | P0 | README/security/limitations and exact verification commands | WARP-1–3 | Dev |
-| WARP-5 | P0 | Deterministic tests and full verification plus temp-settings smoke | WARP-1–4 | Dev, then QA |
+| WARP-5 | P0 | Deterministic tests and full verification plus temp-settings smoke; dry-run regression | WARP-1–4 | Dev, then QA |
+| WARP-6 | P1 | Source-verified secure-storage contract discovery and disposable round trip; safe live E2E only after confirmation | WARP-5, installed Warp evidence | Dev, then QA |
 
+Automation WARP-6 is a hard dependency for any claim of unattended Warp configuration; failure or unknown contract leaves the supported manual-paste branch unchanged.
+
+## WARP-6 — Secure-storage automation investigation (P1, gated)
+
+**Objective:** Determine whether the installed Warp build provides a supported, source-confirmed OS secure-storage route for `AiApiKeys` and `custom_endpoints`, without guessing or touching unrelated credentials.
+
+**Acceptance criteria:**
+- Record exact service/key, encoding, schema, UUID and ownership semantics from official/client evidence; logical source evidence alone is insufficient.
+- Round-trip in an isolated temporary namespace/backup: write one test endpoint, verify Warp reads it and the model picker exposes it, then restore; prove unrelated credentials are byte-for-byte/record-for-record preserved.
+- Run live only after explicit user-visible confirmation; otherwise emit exact blocker and do not claim active automation.
+- Include dry-run regression evidence showing no profile/keychain/config/secure-storage writes.
+
+**Dependencies:** WARP-5 and installed Warp evidence. **Owner:** Dev investigation; QA safety review.
 ## WARP-E2E — Temp-settings smoke (P0)
 
 **Status:** READY / no GUI blocker. This ticket verifies installed Warp discovery and the manual-paste branch using temporary settings only. It MUST NOT configure Warp through GUI, mutate live `~/.warp/settings.toml`, or access/export keychain secrets.

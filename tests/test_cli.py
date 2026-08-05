@@ -7,6 +7,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from byop import cli
+from byop.core import keychain as kc
+from byop.core import profiles as prof
 
 
 def test_cli_dry_run_non_interactive(monkeypatch):
@@ -47,6 +49,39 @@ def test_cli_dry_run_non_interactive(monkeypatch):
     assert rc == 0
     assert calls["install"] == 1
     assert calls["configure"] == 1
+
+
+def test_cli_dry_run_does_not_persist_profile_or_keychain(monkeypatch, tmp_path):
+    """Dry-run must not save profile metadata or secrets before target work."""
+    import byop.core.targets as tmod
+
+    class FakeTarget:
+        name = "zed"
+        display_name = "Zed"
+
+        def is_installed(self):
+            return True
+
+        def install(self, log=print):
+            pass
+
+        def configure(self, provider, **kwargs):
+            assert kwargs["dry_run"] is True
+
+        def current_provider_names(self):
+            return []
+
+    monkeypatch.setattr(tmod, "available_targets", lambda settings_path=None: [FakeTarget()])
+    monkeypatch.setattr(tmod, "detect_installed", lambda targets: targets)
+    calls = {"save": 0, "keychain": 0}
+    monkeypatch.setattr(prof, "save_profile", lambda *a, **k: calls.__setitem__("save", calls["save"] + 1))
+    monkeypatch.setattr(kc, "keychain_set", lambda *a, **k: calls.__setitem__("keychain", calls["keychain"] + 1))
+
+    assert cli.main([
+        "--provider", "P", "--api-url", "https://api.example.com/v1",
+        "--api-key", "sk-dry-run", "--model", "m1", "--dry-run",
+    ]) == 0
+    assert calls == {"save": 0, "keychain": 0}
 
 
 def test_cli_uses_first_model_for_agent_defaults(monkeypatch):

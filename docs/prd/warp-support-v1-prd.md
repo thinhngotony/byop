@@ -12,6 +12,18 @@
 - **Schema ceiling:** v1 MUST NOT guess or write undocumented custom-endpoint keys. The endpoint URL, model, and API key are emitted as exact manual-paste values (with the API key redacted in displayed/exported output); users paste them into Warp's documented UI. The target may safely read/write only documented/general TOML settings needed for its managed metadata and must preserve unrelated tables.
 - Tests and smoke verification MUST use a temporary settings path and MUST NOT mutate the user's live Warp settings or macOS keychain. No GUI experiment or disposable endpoint is a release blocker.
 
+## Secure-storage automation objective (P1 dependency)
+
+Warp source evidence identifies the intended credential model as `ApiKeys { custom_endpoints: Vec<CustomEndpoint> }` stored under the secure-storage key `AiApiKeys`. Each `CustomEndpoint` contains `name`, `url`, `api_key`, `models` (including `name`, `alias`, and UUID `config_key`), and a schema enum of `openai_chat_completions`, `openai_responses`, or `anthropic_messages`. Warp's model picker consumes these entries. This source shape is evidence of the logical model, not by itself a supported machine-write contract.
+
+Automation MUST remain unsupported unless the installed Warp build exposes a documented or empirically round-tripped OS secure-storage service/key contract. Dev MUST identify the exact service/key, access mechanism, encoding, and ownership semantics from installed Warp or official documentation; it MUST NOT guess records, schemas, UUID behavior, or overwrite unrelated credentials. This is private Warp Rust-internal/secure-storage reverse engineering, not a supported Warp CLI/API. Before any write, Warp MUST be quit; the raw whole `AiApiKeys` blob MUST be backed up, and restoration MUST be proven. Any read-modify-write MUST preserve `google`, `anthropic`, `openai`, `open_router`, and every other existing custom endpoint; a fresh replacement blob is prohibited. A disposable backup/temp namespace round trip (write, Warp read/model-picker confirmation, restore) is required before any live write. If any prerequisite is unavailable, the command MUST report the exact blocker and remain on the manual-paste path; it MUST NOT claim Warp is active. The final report MUST state the update-breakage ceiling: Warp updates may change private internals and invalidate automation.
+
+## Dry-run and safety gates
+
+The known CLI bug where profile and keychain persistence occurs before the dry-run guard is a release blocker. The guard MUST run before profile saves, keychain writes, environment/profile persistence, settings writes, or any other secret-bearing side effect. Regression tests MUST assert that dry-run leaves isolated profile/config/keychain mocks untouched.
+
+All tests and automation experiments MUST use an isolated temporary `HOME`, config directory, and keychain mock/backup. Live settings, secure storage, and unrelated Warp credentials MUST remain untouched unless the user receives an explicit confirmation prompt after the disposable round trip and chooses to proceed. No plaintext secret may appear in dry-run, exported, or diagnostic output.
+
 ## Success metrics
 
 1. `byop --target warp --dry-run` safely reports the intended Warp operation without writing a secret or corrupting settings.

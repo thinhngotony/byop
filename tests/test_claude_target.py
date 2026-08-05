@@ -90,7 +90,8 @@ def test_configure_writes_settings_json_with_keychain_command(tmp_path):
     settings = tmp_path / "settings.json"
     target = ClaudeTarget(settings_path=settings)
     with mock.patch.object(target, "install"), \
-         mock.patch("byop.core.targets.claude.kc.keychain_has", return_value=True):
+         mock.patch("byop.core.targets.claude.kc.keychain_has", return_value=True), \
+         mock.patch("byop.core.targets.claude.kc.ensure_key", return_value=["k"]):
         target.configure(_provider(), log=lambda m: None)
     data = json.loads(settings.read_text())
     assert data["provider"] == "HyberOrbit"
@@ -103,7 +104,8 @@ def test_configure_writes_literal_key_when_no_keychain_entry(tmp_path):
     settings = tmp_path / "settings.json"
     target = ClaudeTarget(settings_path=settings)
     with mock.patch.object(target, "install"), \
-         mock.patch("byop.core.targets.claude.kc.keychain_has", return_value=False):
+         mock.patch("byop.core.targets.claude.kc.keychain_has", return_value=False), \
+         mock.patch("byop.core.targets.claude.kc.ensure_key", return_value=["k"]):
         target.configure(_provider(), log=lambda m: None)
     data = json.loads(settings.read_text())
     assert data["apiKey"] == "sk-12345678"
