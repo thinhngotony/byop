@@ -46,7 +46,7 @@ writes your secret to disk in plaintext.
 | `claude` (Claude Code) | `~/.claude/settings.json` | `brew install --cask claude-code` / `npm i -g @anthropic-ai/claude-code` / `curl -fsSL https://claude.ai/install.sh | sh` |
 | `warp` (Warp) | `~/.warp/settings.toml` (read-only) | Homebrew cask / https://www.warp.dev/download |
 
-Warp support currently prints exact values for manual entry in Warp Settings > AI > Custom inference endpoint. Warp's endpoint TOML schema is undocumented and unverified, so byop never guesses keys or writes the settings file; API keys are redacted from output. Warp requires a public HTTPS endpoint (local/private URLs are rejected). `--conflict replace` and `skip` are accepted; `append` is rejected because Warp has one active endpoint.
+Warp support currently prints exact values for manual entry in Warp Settings > AI > Custom inference endpoint. Warp's endpoint TOML schema is undocumented and unverified, so byop never guesses keys or writes the settings file; API keys are redacted from output. Warp requires a public HTTPS endpoint (local/private URLs are rejected). `--conflict replace` and `skip` are accepted; `append` is rejected because Warp has one active endpoint. Unattended secure-storage automation is not supported: Warp's private `AiApiKeys` blob has no documented external write contract. Tracking request: [warpdotdev/warp#14721](https://github.com/warpdotdev/warp/issues/14721).
 
 ## Installation
 
