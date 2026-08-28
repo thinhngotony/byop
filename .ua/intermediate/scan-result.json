@@ -1,0 +1,496 @@
+{
+  "name": "byop",
+  "description": "Bring Your Own Provider (BYOP) is an interactive CLI that wires a custom OpenAI-compatible LLM provider into Zed, py.dev, and other AI coding tools.",
+  "languages": [
+    "javascript",
+    "markdown",
+    "python",
+    "shell",
+    "toml",
+    "typed",
+    "yaml"
+  ],
+  "frameworks": [
+    "Pytest"
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "language": "yaml",
+      "sizeLines": 55,
+      "fileCategory": "infra"
+    },
+    {
+      "path": "AGENTS.md",
+      "language": "markdown",
+      "sizeLines": 100,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "sizeLines": 351,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "byop/__init__.py",
+      "language": "python",
+      "sizeLines": 18,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/cli.py",
+      "language": "python",
+      "sizeLines": 1029,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/__init__.py",
+      "language": "python",
+      "sizeLines": 17,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/apply.py",
+      "language": "python",
+      "sizeLines": 69,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/config.py",
+      "language": "python",
+      "sizeLines": 210,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/conflict.py",
+      "language": "python",
+      "sizeLines": 73,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/keychain.py",
+      "language": "python",
+      "sizeLines": 194,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/paste.py",
+      "language": "python",
+      "sizeLines": 195,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/paths.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/profiles.py",
+      "language": "python",
+      "sizeLines": 366,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/prompt.py",
+      "language": "python",
+      "sizeLines": 159,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/settings.py",
+      "language": "python",
+      "sizeLines": 109,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/targets/__init__.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/targets/base.py",
+      "language": "python",
+      "sizeLines": 95,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/targets/claude.py",
+      "language": "python",
+      "sizeLines": 204,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/targets/omp.py",
+      "language": "python",
+      "sizeLines": 434,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/targets/opencode.py",
+      "language": "python",
+      "sizeLines": 221,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/targets/py.py",
+      "language": "python",
+      "sizeLines": 255,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/targets/registry.py",
+      "language": "python",
+      "sizeLines": 44,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/targets/warp.py",
+      "language": "python",
+      "sizeLines": 109,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/targets/zed.py",
+      "language": "python",
+      "sizeLines": 166,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/wizard.py",
+      "language": "python",
+      "sizeLines": 215,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/core/zed.py",
+      "language": "python",
+      "sizeLines": 183,
+      "fileCategory": "code"
+    },
+    {
+      "path": "byop/py.typed",
+      "language": "typed",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "docs/prd/warp-support-v1-prd.md",
+      "language": "markdown",
+      "sizeLines": 96,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/prd/warp-support-v1-tickets.md",
+      "language": "markdown",
+      "sizeLines": 115,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-22-byop-v1.5.0-release.md",
+      "language": "markdown",
+      "sizeLines": 57,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-22-byop-v2.0.0-release.md",
+      "language": "markdown",
+      "sizeLines": 106,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "install.sh",
+      "language": "shell",
+      "sizeLines": 152,
+      "fileCategory": "script"
+    },
+    {
+      "path": "pyproject.toml",
+      "language": "toml",
+      "sizeLines": 62,
+      "fileCategory": "config"
+    },
+    {
+      "path": "tests/test_apply.py",
+      "language": "python",
+      "sizeLines": 120,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_claude_target.py",
+      "language": "python",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_cli.py",
+      "language": "python",
+      "sizeLines": 405,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_config.py",
+      "language": "python",
+      "sizeLines": 161,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_conflict.py",
+      "language": "python",
+      "sizeLines": 124,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_export_config.py",
+      "language": "python",
+      "sizeLines": 181,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_keychain.py",
+      "language": "python",
+      "sizeLines": 205,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_omp_target.py",
+      "language": "python",
+      "sizeLines": 190,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_opencode_target.py",
+      "language": "python",
+      "sizeLines": 157,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_paste.py",
+      "language": "python",
+      "sizeLines": 246,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_profiles.py",
+      "language": "python",
+      "sizeLines": 184,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_prompt.py",
+      "language": "python",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_settings.py",
+      "language": "python",
+      "sizeLines": 71,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_targets.py",
+      "language": "python",
+      "sizeLines": 283,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_warp_target.py",
+      "language": "python",
+      "sizeLines": 54,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_wizard.py",
+      "language": "python",
+      "sizeLines": 161,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/test_zed.py",
+      "language": "python",
+      "sizeLines": 146,
+      "fileCategory": "code"
+    },
+    {
+      "path": "worker.js",
+      "language": "javascript",
+      "sizeLines": 83,
+      "fileCategory": "code"
+    },
+    {
+      "path": "wrangler.toml",
+      "language": "toml",
+      "sizeLines": 9,
+      "fileCategory": "config"
+    }
+  ],
+  "totalFiles": 52,
+  "filteredByIgnore": 2,
+  "estimatedComplexity": "moderate",
+  "importMap": {
+    ".github/workflows/ci.yml": [],
+    "AGENTS.md": [],
+    "README.md": [],
+    "byop/__init__.py": [
+      "byop/core/apply.py",
+      "byop/core/config.py"
+    ],
+    "byop/cli.py": [
+      "byop/core/__init__.py",
+      "byop/core/config.py",
+      "byop/core/conflict.py",
+      "byop/core/paste.py",
+      "byop/core/prompt.py",
+      "byop/core/wizard.py"
+    ],
+    "byop/core/__init__.py": [
+      "byop/core/apply.py",
+      "byop/core/config.py",
+      "byop/core/keychain.py",
+      "byop/core/prompt.py",
+      "byop/core/settings.py",
+      "byop/core/zed.py"
+    ],
+    "byop/core/apply.py": [
+      "byop/core/config.py",
+      "byop/core/targets/zed.py"
+    ],
+    "byop/core/config.py": [],
+    "byop/core/conflict.py": [],
+    "byop/core/keychain.py": [],
+    "byop/core/paste.py": [
+      "byop/core/config.py"
+    ],
+    "byop/core/paths.py": [],
+    "byop/core/profiles.py": [
+      "byop/core/config.py",
+      "byop/core/paths.py"
+    ],
+    "byop/core/prompt.py": [],
+    "byop/core/settings.py": [],
+    "byop/core/targets/__init__.py": [
+      "byop/core/targets/base.py",
+      "byop/core/targets/registry.py"
+    ],
+    "byop/core/targets/base.py": [
+      "byop/core/config.py"
+    ],
+    "byop/core/targets/claude.py": [
+      "byop/core/config.py"
+    ],
+    "byop/core/targets/omp.py": [
+      "byop/core/targets/py.py"
+    ],
+    "byop/core/targets/opencode.py": [
+      "byop/core/config.py"
+    ],
+    "byop/core/targets/py.py": [
+      "byop/core/config.py"
+    ],
+    "byop/core/targets/registry.py": [
+      "byop/core/targets/base.py",
+      "byop/core/targets/claude.py",
+      "byop/core/targets/omp.py",
+      "byop/core/targets/opencode.py",
+      "byop/core/targets/py.py",
+      "byop/core/targets/warp.py",
+      "byop/core/targets/zed.py"
+    ],
+    "byop/core/targets/warp.py": [
+      "byop/core/config.py"
+    ],
+    "byop/core/targets/zed.py": [
+      "byop/core/config.py"
+    ],
+    "byop/core/wizard.py": [
+      "byop/core/config.py",
+      "byop/core/paste.py",
+      "byop/core/prompt.py"
+    ],
+    "byop/core/zed.py": [],
+    "byop/py.typed": [],
+    "docs/prd/warp-support-v1-prd.md": [],
+    "docs/prd/warp-support-v1-tickets.md": [],
+    "docs/superpowers/specs/2026-07-22-byop-v1.5.0-release.md": [],
+    "docs/superpowers/specs/2026-07-22-byop-v2.0.0-release.md": [],
+    "install.sh": [],
+    "pyproject.toml": [],
+    "tests/test_apply.py": [
+      "byop/core/__init__.py",
+      "byop/core/config.py"
+    ],
+    "tests/test_claude_target.py": [
+      "byop/core/config.py",
+      "byop/core/targets/claude.py"
+    ],
+    "tests/test_cli.py": [
+      "byop/__init__.py",
+      "byop/cli.py",
+      "byop/core/__init__.py"
+    ],
+    "tests/test_config.py": [
+      "byop/core/__init__.py",
+      "byop/core/config.py"
+    ],
+    "tests/test_conflict.py": [
+      "byop/core/conflict.py"
+    ],
+    "tests/test_export_config.py": [
+      "byop/core/config.py",
+      "byop/core/targets/omp.py",
+      "byop/core/targets/opencode.py",
+      "byop/core/targets/py.py",
+      "byop/core/targets/zed.py"
+    ],
+    "tests/test_keychain.py": [
+      "byop/core/__init__.py"
+    ],
+    "tests/test_omp_target.py": [
+      "byop/core/config.py",
+      "byop/core/targets/__init__.py",
+      "byop/core/targets/omp.py",
+      "byop/core/targets/py.py"
+    ],
+    "tests/test_opencode_target.py": [
+      "byop/core/config.py",
+      "byop/core/targets/opencode.py"
+    ],
+    "tests/test_paste.py": [
+      "byop/core/config.py",
+      "byop/core/paste.py"
+    ],
+    "tests/test_profiles.py": [
+      "byop/core/__init__.py",
+      "byop/core/config.py"
+    ],
+    "tests/test_prompt.py": [
+      "byop/core/__init__.py",
+      "byop/core/prompt.py"
+    ],
+    "tests/test_settings.py": [
+      "byop/core/__init__.py"
+    ],
+    "tests/test_targets.py": [
+      "byop/core/config.py",
+      "byop/core/targets/__init__.py",
+      "byop/core/targets/py.py",
+      "byop/core/targets/zed.py"
+    ],
+    "tests/test_warp_target.py": [
+      "byop/core/config.py",
+      "byop/core/targets/warp.py"
+    ],
+    "tests/test_wizard.py": [
+      "byop/core/__init__.py",
+      "byop/core/wizard.py"
+    ],
+    "tests/test_zed.py": [
+      "byop/core/__init__.py"
+    ],
+    "worker.js": [],
+    "wrangler.toml": []
+  }
+}

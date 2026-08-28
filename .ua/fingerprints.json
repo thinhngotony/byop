@@ -1,0 +1,4943 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "124585e3e15534f0cae435956dbd3fcaf73ad1cc",
+  "generatedAt": "2026-08-27T16:11:04.580Z",
+  "files": {
+    ".github/workflows/ci.yml": {
+      "filePath": ".github/workflows/ci.yml",
+      "contentHash": "3aa32d50790a5eed8137a1c56a5b21a6d76e020f2e42b53ee52fbf625f45f990",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 56,
+      "hasStructuralAnalysis": true
+    },
+    "AGENTS.md": {
+      "filePath": "AGENTS.md",
+      "contentHash": "5bbe301b4122786b54d1f2637250e04f32b1154b9eb73f4111b5f0fb141dc5a2",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 101,
+      "hasStructuralAnalysis": true
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "bbe851f1e7b895fccd92a166264ed41df77f558c2877b57f2a53827505f99e9b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 352,
+      "hasStructuralAnalysis": true
+    },
+    "byop/__init__.py": {
+      "filePath": "byop/__init__.py",
+      "contentHash": "ae676f67ae87cd372f5f69950a2bbbf64d41aa5212033c41dda0b7c374bc0e9d",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": ".core.apply",
+          "specifiers": [
+            "apply_provider",
+            "default_model_capabilities"
+          ]
+        },
+        {
+          "source": ".core.config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    "byop/cli.py": {
+      "filePath": "byop/cli.py",
+      "contentHash": "52269749692a8cbdca45b30d3b174a226c8435c8502b6beb51a256d38d5312b4",
+      "functions": [
+        {
+          "name": "build_parser",
+          "params": [],
+          "returnType": "argparse.ArgumentParser",
+          "exported": true,
+          "lineCount": 74
+        },
+        {
+          "name": "_add_omp_path_args",
+          "params": [
+            "p"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "_add_apply_args",
+          "params": [
+            "p"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 87
+        },
+        {
+          "name": "main",
+          "params": [
+            "argv"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "_main",
+          "params": [
+            "argv"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "_inject_default_subcommand",
+          "params": [
+            "argv"
+          ],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "_dispatch",
+          "params": [
+            "parser",
+            "args"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "_route_bare",
+          "params": [
+            "parser",
+            "args"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 31
+        },
+        {
+          "name": "_run_default_landing",
+          "params": [],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 48
+        },
+        {
+          "name": "_run_first_run_wizard",
+          "params": [],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 20
+        },
+        {
+          "name": "_make_args_for_apply",
+          "params": [
+            "profile",
+            "api_key",
+            "prefs"
+          ],
+          "exported": true,
+          "lineCount": 38
+        },
+        {
+          "name": "_run_status",
+          "params": [
+            "omp_profile",
+            "omp_models_path"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 46
+        },
+        {
+          "name": "_run_apply",
+          "params": [
+            "args"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 175
+        },
+        {
+          "name": "_run_profile",
+          "params": [
+            "args"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 53
+        },
+        {
+          "name": "_profile_new_interactive",
+          "params": [],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "_profile_edit_interactive",
+          "params": [],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "_run_doctor",
+          "params": [
+            "omp_profile",
+            "omp_models_path"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 38
+        },
+        {
+          "name": "_run_export",
+          "params": [
+            "args"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 35
+        },
+        {
+          "name": "_build_model",
+          "params": [
+            "name",
+            "display",
+            "reasoning",
+            "max_tokens",
+            "max_out",
+            "images",
+            "interleaved",
+            "max_param"
+          ],
+          "returnType": "ModelConfig",
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "parse_model_specs",
+          "params": [
+            "specs"
+          ],
+          "returnType": "list[dict]",
+          "exported": true,
+          "lineCount": 81
+        },
+        {
+          "name": "_provider_from_args",
+          "params": [
+            "args"
+          ],
+          "returnType": "ProviderConfig",
+          "exported": true,
+          "lineCount": 41
+        },
+        {
+          "name": "_select_targets",
+          "params": [
+            "args",
+            "provider"
+          ],
+          "returnType": "list",
+          "exported": true,
+          "lineCount": 46
+        }
+      ],
+      "classes": [
+        {
+          "name": "_ConflictRejected",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "importlib.metadata",
+          "specifiers": [
+            "_pkg_version"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": ".core",
+          "specifiers": [
+            "default_model_capabilities",
+            "prompt",
+            "wizard"
+          ]
+        },
+        {
+          "source": ".core.config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        },
+        {
+          "source": ".core.conflict",
+          "specifiers": [
+            "resolve_conflict_action",
+            "supports_append"
+          ]
+        },
+        {
+          "source": ".core.paste",
+          "specifiers": [
+            "parse_provider_paste"
+          ]
+        }
+      ],
+      "exports": [
+        "build_parser",
+        "_add_omp_path_args",
+        "_add_apply_args",
+        "main",
+        "_main",
+        "_inject_default_subcommand",
+        "_dispatch",
+        "_route_bare",
+        "_run_default_landing",
+        "_run_first_run_wizard",
+        "_make_args_for_apply",
+        "_run_status",
+        "_run_apply",
+        "_run_profile",
+        "_profile_new_interactive",
+        "_profile_edit_interactive",
+        "_run_doctor",
+        "_run_export",
+        "_ConflictRejected",
+        "_build_model",
+        "parse_model_specs",
+        "_provider_from_args",
+        "_select_targets"
+      ],
+      "totalLines": 1030,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/__init__.py": {
+      "filePath": "byop/core/__init__.py",
+      "contentHash": "155ddb667aa7651f42c770ff7c48475f66d20ac20c15f9f7787e489b5fd3f310",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": ".",
+          "specifiers": [
+            "keychain",
+            "prompt",
+            "settings",
+            "zed"
+          ]
+        },
+        {
+          "source": ".apply",
+          "specifiers": [
+            "apply_provider",
+            "build_settings_update",
+            "default_model_capabilities"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 18,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/apply.py": {
+      "filePath": "byop/core/apply.py",
+      "contentHash": "cfd5b0f7887bab9472b02cbe6cf51e65212cdf55587e56d9393871b32ba809d7",
+      "functions": [
+        {
+          "name": "default_model_capabilities",
+          "params": [],
+          "returnType": "dict[str, bool]",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "build_settings_update",
+          "params": [
+            "provider"
+          ],
+          "returnType": "dict[str, object]",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "apply_provider",
+          "params": [
+            "provider",
+            "settings_path",
+            "log",
+            "dry_run",
+            "use_keychain",
+            "use_env"
+          ],
+          "returnType": "dict[str, object]",
+          "exported": true,
+          "lineCount": 24
+        },
+        {
+          "name": "current_provider_names",
+          "params": [
+            "settings_path"
+          ],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Callable"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "ProviderConfig"
+          ]
+        },
+        {
+          "source": ".targets.zed",
+          "specifiers": [
+            "ZedTarget"
+          ]
+        }
+      ],
+      "exports": [
+        "default_model_capabilities",
+        "build_settings_update",
+        "apply_provider",
+        "current_provider_names"
+      ],
+      "totalLines": 70,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/config.py": {
+      "filePath": "byop/core/config.py",
+      "contentHash": "a2de086bd52ad63568c17e98796dea062ab12a2390ee87b2327ff896ada96446",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ModelConfig",
+          "methods": [
+            "to_dict"
+          ],
+          "properties": [
+            "name",
+            "display_name",
+            "max_tokens",
+            "max_output_tokens",
+            "reasoning_effort",
+            "capabilities"
+          ],
+          "exported": true,
+          "lineCount": 24
+        },
+        {
+          "name": "ProviderConfig",
+          "methods": [
+            "validate",
+            "normalized_api_url",
+            "env_var_name",
+            "keychain_server",
+            "language_models_block",
+            "agent_block",
+            "edit_predictions_block"
+          ],
+          "properties": [
+            "provider_name",
+            "api_url",
+            "api_key",
+            "models",
+            "set_inline_assistant",
+            "set_default_agent",
+            "set_commit_message",
+            "set_thread_summary",
+            "use_edit_predictions"
+          ],
+          "exported": true,
+          "lineCount": 141
+        }
+      ],
+      "imports": [
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Mapping"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass",
+            "field"
+          ]
+        },
+        {
+          "source": "urllib.parse",
+          "specifiers": [
+            "urlparse"
+          ]
+        }
+      ],
+      "exports": [
+        "ModelConfig",
+        "ProviderConfig"
+      ],
+      "totalLines": 211,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/conflict.py": {
+      "filePath": "byop/core/conflict.py",
+      "contentHash": "e962a126a6dbc096e4e6b9e382d612fd5d9459675fb833b1fcda44606ff1040a",
+      "functions": [
+        {
+          "name": "default_conflict_action",
+          "params": [
+            "target_name",
+            "interactive"
+          ],
+          "returnType": "str | None",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "resolve_conflict_action",
+          "params": [
+            "target_name",
+            "has_collision",
+            "interactive",
+            "conflict_flag"
+          ],
+          "returnType": "ConflictAction | None",
+          "exported": true,
+          "lineCount": 34
+        },
+        {
+          "name": "supports_append",
+          "params": [
+            "target_name"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "ConflictAction",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "imports": [
+        {
+          "source": "enum",
+          "specifiers": [
+            "Enum"
+          ]
+        }
+      ],
+      "exports": [
+        "ConflictAction",
+        "default_conflict_action",
+        "resolve_conflict_action",
+        "supports_append"
+      ],
+      "totalLines": 74,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/keychain.py": {
+      "filePath": "byop/core/keychain.py",
+      "contentHash": "970f51ff1cfc70e8d52ce11e3ba5971973b76e3618c3b7a4057b15a71cec35bf",
+      "functions": [
+        {
+          "name": "_run",
+          "params": [
+            "cmd"
+          ],
+          "returnType": "subprocess.CompletedProcess",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "keychain_has",
+          "params": [
+            "server",
+            "account"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "security_command_ref",
+          "params": [
+            "server",
+            "account"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "keychain_get",
+          "params": [
+            "server",
+            "account"
+          ],
+          "returnType": "str | None",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "keychain_set",
+          "params": [
+            "server",
+            "api_key",
+            "account"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "keychain_delete",
+          "params": [
+            "server",
+            "account"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "env_var_export_line",
+          "params": [
+            "env_var",
+            "api_key"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "profile_candidates",
+          "params": [],
+          "returnType": "list[Path]",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "find_env_in_profiles",
+          "params": [
+            "env_var"
+          ],
+          "returnType": "Path | None",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "write_env_to_profile",
+          "params": [
+            "env_var",
+            "api_key",
+            "profile"
+          ],
+          "returnType": "Path",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "ensure_key",
+          "params": [
+            "server",
+            "api_key",
+            "env_var",
+            "log",
+            "use_keychain",
+            "use_env"
+          ],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 25
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "shlex",
+          "specifiers": [
+            "shlex"
+          ]
+        },
+        {
+          "source": "subprocess",
+          "specifiers": [
+            "subprocess"
+          ]
+        },
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Callable"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        }
+      ],
+      "exports": [
+        "_run",
+        "keychain_has",
+        "security_command_ref",
+        "keychain_get",
+        "keychain_set",
+        "keychain_delete",
+        "env_var_export_line",
+        "profile_candidates",
+        "find_env_in_profiles",
+        "write_env_to_profile",
+        "ensure_key"
+      ],
+      "totalLines": 195,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/paste.py": {
+      "filePath": "byop/core/paste.py",
+      "contentHash": "ac86c4d7e1340f00b43fe09aed01ba596a99bfe9d10cd1012eb6490d3b6a64ab",
+      "functions": [
+        {
+          "name": "_strip_jsonc_comments",
+          "params": [
+            "text"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 44
+        },
+        {
+          "name": "_safe_loads",
+          "params": [
+            "text"
+          ],
+          "returnType": "Any",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "looks_like_provider_paste",
+          "params": [
+            "text"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "_coerce_model",
+          "params": [
+            "raw"
+          ],
+          "returnType": "ModelConfig",
+          "exported": true,
+          "lineCount": 27
+        },
+        {
+          "name": "_missing_str",
+          "params": [],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "parse_provider_paste",
+          "params": [
+            "text"
+          ],
+          "returnType": "tuple[ProviderConfig, list[str]]",
+          "exported": true,
+          "lineCount": 49
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        }
+      ],
+      "exports": [
+        "_strip_jsonc_comments",
+        "_safe_loads",
+        "looks_like_provider_paste",
+        "_coerce_model",
+        "_missing_str",
+        "parse_provider_paste"
+      ],
+      "totalLines": 196,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/paths.py": {
+      "filePath": "byop/core/paths.py",
+      "contentHash": "c2c6149c46d3858ba58eae1fec39a31ac05d13e49376db494fb4d97adf2fe09f",
+      "functions": [
+        {
+          "name": "config_dir",
+          "params": [],
+          "returnType": "Path",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "profiles_dir",
+          "params": [],
+          "returnType": "Path",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "config_path",
+          "params": [],
+          "returnType": "Path",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "ensure_config_dir",
+          "params": [],
+          "returnType": "Path",
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "platformdirs",
+          "specifiers": [
+            "user_config_dir"
+          ]
+        }
+      ],
+      "exports": [
+        "config_dir",
+        "profiles_dir",
+        "config_path",
+        "ensure_config_dir"
+      ],
+      "totalLines": 50,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/profiles.py": {
+      "filePath": "byop/core/profiles.py",
+      "contentHash": "109ce8cbb8ba5570f33f6811722477de5356703dbab3f3214dd0a2834e5038b4",
+      "functions": [
+        {
+          "name": "_model_to_toml",
+          "params": [
+            "model"
+          ],
+          "returnType": "dict[str, Any]",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "_model_from_toml",
+          "params": [
+            "data"
+          ],
+          "returnType": "ModelConfig",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "_now",
+          "params": [],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "_validate_profile_name",
+          "params": [
+            "name"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "_read_global_config",
+          "params": [],
+          "returnType": "dict[str, Any]",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "_write_global_config",
+          "params": [
+            "data"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "get_active_profile_name",
+          "params": [],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "set_active_profile_name",
+          "params": [
+            "name"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "_profile_path",
+          "params": [
+            "name"
+          ],
+          "returnType": "Path",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "profile_exists",
+          "params": [
+            "name"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "list_profiles",
+          "params": [],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "load_profile",
+          "params": [
+            "name"
+          ],
+          "returnType": "Profile",
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "save_profile",
+          "params": [
+            "profile",
+            "allow_overwrite",
+            "api_key"
+          ],
+          "returnType": "Profile",
+          "exported": true,
+          "lineCount": 31
+        },
+        {
+          "name": "delete_profile",
+          "params": [
+            "name"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "profile_from_provider",
+          "params": [
+            "provider",
+            "name",
+            "api_key_ref"
+          ],
+          "returnType": "Profile",
+          "exported": true,
+          "lineCount": 28
+        }
+      ],
+      "classes": [
+        {
+          "name": "ProfileError",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "ProfileNotFound",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "ProfileExists",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "Profile",
+          "methods": [
+            "to_provider_config",
+            "to_toml",
+            "from_toml"
+          ],
+          "properties": [
+            "name",
+            "provider_name",
+            "api_url",
+            "api_key_ref",
+            "env_var",
+            "models",
+            "set_default_agent",
+            "set_inline_assistant",
+            "set_commit_message",
+            "set_thread_summary",
+            "use_edit_predictions",
+            "created_at",
+            "updated_at"
+          ],
+          "exported": true,
+          "lineCount": 101
+        }
+      ],
+      "imports": [
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "tomllib",
+          "specifiers": [
+            "tomllib"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass",
+            "field"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "UTC",
+            "datetime"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any"
+          ]
+        },
+        {
+          "source": "tomli_w",
+          "specifiers": [
+            "tomli_w"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        },
+        {
+          "source": ".paths",
+          "specifiers": [
+            "config_path",
+            "ensure_config_dir",
+            "profiles_dir"
+          ]
+        }
+      ],
+      "exports": [
+        "ProfileError",
+        "ProfileNotFound",
+        "ProfileExists",
+        "Profile",
+        "_model_to_toml",
+        "_model_from_toml",
+        "_now",
+        "_validate_profile_name",
+        "_read_global_config",
+        "_write_global_config",
+        "get_active_profile_name",
+        "set_active_profile_name",
+        "_profile_path",
+        "profile_exists",
+        "list_profiles",
+        "load_profile",
+        "save_profile",
+        "delete_profile",
+        "profile_from_provider"
+      ],
+      "totalLines": 367,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/prompt.py": {
+      "filePath": "byop/core/prompt.py",
+      "contentHash": "a80630903996670153fca6ee71062d45c660190f89cf60d340320beac93a5e6e",
+      "functions": [
+        {
+          "name": "_console",
+          "params": [],
+          "returnType": "Console",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "_strip_escape_chars",
+          "params": [
+            "text"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "ask",
+          "params": [
+            "prompt",
+            "default",
+            "allow_empty"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "ask_secret",
+          "params": [
+            "prompt"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "ask_int",
+          "params": [
+            "prompt",
+            "default"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "confirm",
+          "params": [
+            "prompt",
+            "default"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "choose",
+          "params": [
+            "prompt",
+            "options",
+            "default_index"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "header",
+          "params": [
+            "title"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "choose_action",
+          "params": [
+            "target_label",
+            "options",
+            "default"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "info",
+          "params": [
+            "message"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "success",
+          "params": [
+            "message"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "warn",
+          "params": [
+            "message"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "error",
+          "params": [
+            "message"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "getpass",
+          "specifiers": [
+            "getpass"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        }
+      ],
+      "exports": [
+        "_console",
+        "_strip_escape_chars",
+        "ask",
+        "ask_secret",
+        "ask_int",
+        "confirm",
+        "choose",
+        "header",
+        "choose_action",
+        "info",
+        "success",
+        "warn",
+        "error"
+      ],
+      "totalLines": 160,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/settings.py": {
+      "filePath": "byop/core/settings.py",
+      "contentHash": "a50b01d739132960310a96e77166e9f3e0a7edd5c8879e7819dab060104439e2",
+      "functions": [
+        {
+          "name": "_strip_comments",
+          "params": [
+            "text"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 45
+        },
+        {
+          "name": "loads",
+          "params": [
+            "text"
+          ],
+          "returnType": "dict[str, Any]",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "load_path",
+          "params": [
+            "path"
+          ],
+          "returnType": "dict[str, Any]",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "merge",
+          "params": [
+            "base",
+            "update"
+          ],
+          "returnType": "dict[str, Any]",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "dumps",
+          "params": [
+            "data",
+            "indent"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "write_path",
+          "params": [
+            "path",
+            "data"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any"
+          ]
+        }
+      ],
+      "exports": [
+        "_strip_comments",
+        "loads",
+        "load_path",
+        "merge",
+        "dumps",
+        "write_path"
+      ],
+      "totalLines": 110,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/targets/__init__.py": {
+      "filePath": "byop/core/targets/__init__.py",
+      "contentHash": "1922b58836184bb3a34adc340bc472c6dae6b867155db029c4d2bc6989f7013f",
+      "functions": [
+        {
+          "name": "__getattr__",
+          "params": [
+            "name"
+          ],
+          "returnType": "object",
+          "exported": true,
+          "lineCount": 17
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "typing",
+          "specifiers": [
+            "TYPE_CHECKING"
+          ]
+        },
+        {
+          "source": ".base",
+          "specifiers": [
+            "Target",
+            "configure_all",
+            "detect_installed"
+          ]
+        },
+        {
+          "source": ".registry",
+          "specifiers": [
+            "ALL_TARGETS",
+            "available_targets"
+          ]
+        }
+      ],
+      "exports": [
+        "__getattr__"
+      ],
+      "totalLines": 50,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/targets/base.py": {
+      "filePath": "byop/core/targets/base.py",
+      "contentHash": "ce05d00fccd546e2cabb82510a8bfe4ba29b76387d5b8fd68333d5dd8784ebe6",
+      "functions": [
+        {
+          "name": "detect_installed",
+          "params": [
+            "targets"
+          ],
+          "returnType": "list[Target]",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "configure_all",
+          "params": [
+            "targets",
+            "provider",
+            "dry_run",
+            "use_keychain",
+            "use_env",
+            "log"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 21
+        }
+      ],
+      "classes": [
+        {
+          "name": "Target",
+          "methods": [
+            "is_installed",
+            "install",
+            "configure",
+            "current_provider_names",
+            "export_config"
+          ],
+          "properties": [
+            "name",
+            "display_name"
+          ],
+          "exported": true,
+          "lineCount": 40
+        }
+      ],
+      "imports": [
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Callable"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Protocol",
+            "runtime_checkable"
+          ]
+        },
+        {
+          "source": "..config",
+          "specifiers": [
+            "ProviderConfig"
+          ]
+        }
+      ],
+      "exports": [
+        "Target",
+        "detect_installed",
+        "configure_all"
+      ],
+      "totalLines": 96,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/targets/claude.py": {
+      "filePath": "byop/core/targets/claude.py",
+      "contentHash": "f88f4e4d3168d461811f51d09a70d575f8f25eb4171db09c22d0f449ce38003b",
+      "functions": [
+        {
+          "name": "_run",
+          "params": [
+            "cmd"
+          ],
+          "returnType": "subprocess.CompletedProcess",
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [
+        {
+          "name": "ClaudeTarget",
+          "methods": [
+            "__init__",
+            "is_installed",
+            "install",
+            "_api_key_ref",
+            "build_fragment",
+            "_load",
+            "_write",
+            "configure",
+            "current_provider_names",
+            "export_config"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 183
+        }
+      ],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "shutil",
+          "specifiers": [
+            "shutil"
+          ]
+        },
+        {
+          "source": "subprocess",
+          "specifiers": [
+            "subprocess"
+          ]
+        },
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Callable"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "..",
+          "specifiers": [
+            "kc"
+          ]
+        },
+        {
+          "source": "..config",
+          "specifiers": [
+            "ProviderConfig"
+          ]
+        }
+      ],
+      "exports": [
+        "_run",
+        "ClaudeTarget"
+      ],
+      "totalLines": 205,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/targets/omp.py": {
+      "filePath": "byop/core/targets/omp.py",
+      "contentHash": "97dacadbf98d2a6b72bc2667e0bc73d3e944aad46f4d7b2cbace0cccf6683b0a",
+      "functions": [
+        {
+          "name": "profile_models_path",
+          "params": [
+            "profile",
+            "config_root"
+          ],
+          "returnType": "Path",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "_run",
+          "params": [
+            "cmd"
+          ],
+          "returnType": "subprocess.CompletedProcess",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "_yaml_scalar",
+          "params": [
+            "value"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "_parse_models_yaml",
+          "params": [
+            "text"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 191
+        },
+        {
+          "name": "_emit_value",
+          "params": [
+            "value",
+            "indent"
+          ],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 44
+        },
+        {
+          "name": "_emit_models_yaml",
+          "params": [
+            "data"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 45
+        }
+      ],
+      "classes": [
+        {
+          "name": "OmpTarget",
+          "methods": [
+            "__init__",
+            "_write",
+            "_load",
+            "is_installed",
+            "install"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 95
+        }
+      ],
+      "imports": [
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "shutil",
+          "specifiers": [
+            "shutil"
+          ]
+        },
+        {
+          "source": "subprocess",
+          "specifiers": [
+            "subprocess"
+          ]
+        },
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Callable"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": ".py",
+          "specifiers": [
+            "PyTarget"
+          ]
+        }
+      ],
+      "exports": [
+        "profile_models_path",
+        "_run",
+        "_yaml_scalar",
+        "_parse_models_yaml",
+        "_emit_value",
+        "_emit_models_yaml",
+        "OmpTarget"
+      ],
+      "totalLines": 435,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/targets/opencode.py": {
+      "filePath": "byop/core/targets/opencode.py",
+      "contentHash": "c6551e6256a0ffda9a24f9d756ad8ca8e4956eae12ab42c660f041399a2b2f9c",
+      "functions": [
+        {
+          "name": "_run",
+          "params": [
+            "cmd"
+          ],
+          "returnType": "subprocess.CompletedProcess",
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [
+        {
+          "name": "OpencodeTarget",
+          "methods": [
+            "__init__",
+            "is_installed",
+            "install",
+            "_api_key_ref",
+            "_model_entry",
+            "build_fragment",
+            "configure",
+            "_load",
+            "_write",
+            "current_provider_names",
+            "export_config"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 184
+        }
+      ],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "shutil",
+          "specifiers": [
+            "shutil"
+          ]
+        },
+        {
+          "source": "subprocess",
+          "specifiers": [
+            "subprocess"
+          ]
+        },
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Callable"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "..",
+          "specifiers": [
+            "kc"
+          ]
+        },
+        {
+          "source": "..config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        }
+      ],
+      "exports": [
+        "_run",
+        "OpencodeTarget"
+      ],
+      "totalLines": 222,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/targets/py.py": {
+      "filePath": "byop/core/targets/py.py",
+      "contentHash": "7d8c823bfff340a333e2dd5f5498a944547e22126d4de62f93b5efc95f86cc1a",
+      "functions": [],
+      "classes": [
+        {
+          "name": "PyTarget",
+          "methods": [
+            "__init__",
+            "is_installed",
+            "install",
+            "_api_key_ref",
+            "_model_entry",
+            "build_fragment",
+            "configure",
+            "_load",
+            "_write",
+            "current_provider_names",
+            "export_config"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 239
+        }
+      ],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "shutil",
+          "specifiers": [
+            "shutil"
+          ]
+        },
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Callable"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "..",
+          "specifiers": [
+            "kc"
+          ]
+        },
+        {
+          "source": "..config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        }
+      ],
+      "exports": [
+        "PyTarget"
+      ],
+      "totalLines": 256,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/targets/registry.py": {
+      "filePath": "byop/core/targets/registry.py",
+      "contentHash": "5a161ce5d444b78d8522e18b63255505c204d883b024f6bfed8018c9207dab7b",
+      "functions": [
+        {
+          "name": "available_targets",
+          "params": [
+            "settings_path",
+            "omp_profile",
+            "omp_models_path"
+          ],
+          "returnType": "list[Target]",
+          "exported": true,
+          "lineCount": 16
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": ".base",
+          "specifiers": [
+            "Target"
+          ]
+        },
+        {
+          "source": ".claude",
+          "specifiers": [
+            "ClaudeTarget"
+          ]
+        },
+        {
+          "source": ".omp",
+          "specifiers": [
+            "OmpTarget"
+          ]
+        },
+        {
+          "source": ".opencode",
+          "specifiers": [
+            "OpencodeTarget"
+          ]
+        },
+        {
+          "source": ".py",
+          "specifiers": [
+            "PyTarget"
+          ]
+        },
+        {
+          "source": ".warp",
+          "specifiers": [
+            "WarpTarget"
+          ]
+        },
+        {
+          "source": ".zed",
+          "specifiers": [
+            "ZedTarget"
+          ]
+        }
+      ],
+      "exports": [
+        "available_targets"
+      ],
+      "totalLines": 45,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/targets/warp.py": {
+      "filePath": "byop/core/targets/warp.py",
+      "contentHash": "44a16361bda73936d2db77cbb4d6fc5ba15f0eb9e53175492df9776d95a53a7d",
+      "functions": [
+        {
+          "name": "validate_warp_endpoint",
+          "params": [
+            "url"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 19
+        }
+      ],
+      "classes": [
+        {
+          "name": "WarpTarget",
+          "methods": [
+            "__init__",
+            "is_installed",
+            "install",
+            "_read",
+            "_write",
+            "_manual_values",
+            "configure",
+            "current_provider_names",
+            "export_config",
+            "load_settings",
+            "write_settings"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 64
+        }
+      ],
+      "imports": [
+        {
+          "source": "ipaddress",
+          "specifiers": [
+            "ipaddress"
+          ]
+        },
+        {
+          "source": "shutil",
+          "specifiers": [
+            "shutil"
+          ]
+        },
+        {
+          "source": "socket",
+          "specifiers": [
+            "socket"
+          ]
+        },
+        {
+          "source": "tomllib",
+          "specifiers": [
+            "tomllib"
+          ]
+        },
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Callable"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "urllib.parse",
+          "specifiers": [
+            "urlparse"
+          ]
+        },
+        {
+          "source": "tomli_w",
+          "specifiers": [
+            "tomli_w"
+          ]
+        },
+        {
+          "source": "..config",
+          "specifiers": [
+            "ProviderConfig"
+          ]
+        }
+      ],
+      "exports": [
+        "validate_warp_endpoint",
+        "WarpTarget"
+      ],
+      "totalLines": 110,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/targets/zed.py": {
+      "filePath": "byop/core/targets/zed.py",
+      "contentHash": "175921ace74c22f8e4338e2d28afe04285ae9fc670fc7f1c4d68a73522335fab",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ZedTarget",
+          "methods": [
+            "__init__",
+            "is_installed",
+            "install",
+            "build_fragment",
+            "configure",
+            "current_provider_names",
+            "export_config"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 151
+        }
+      ],
+      "imports": [
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Callable"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "..",
+          "specifiers": [
+            "kc"
+          ]
+        },
+        {
+          "source": "..",
+          "specifiers": [
+            "sett"
+          ]
+        },
+        {
+          "source": "..",
+          "specifiers": [
+            "zedmod"
+          ]
+        },
+        {
+          "source": "..config",
+          "specifiers": [
+            "ProviderConfig"
+          ]
+        }
+      ],
+      "exports": [
+        "ZedTarget"
+      ],
+      "totalLines": 167,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/wizard.py": {
+      "filePath": "byop/core/wizard.py",
+      "contentHash": "1f258f34f1b6101ebb8a92213bd2333cffc9bbf9504dcc6b9be6c5d6f366aaa6",
+      "functions": [
+        {
+          "name": "_ask_models",
+          "params": [
+            "provider_display"
+          ],
+          "returnType": "list[ModelConfig]",
+          "exported": true,
+          "lineCount": 51
+        },
+        {
+          "name": "run_wizard",
+          "params": [
+            "prefill"
+          ],
+          "returnType": "tuple[ProviderConfig, dict]",
+          "exported": true,
+          "lineCount": 153
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": ".",
+          "specifiers": [
+            "default_model_capabilities",
+            "prompt"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        },
+        {
+          "source": ".paste",
+          "specifiers": [
+            "REQUIRED_KEYS",
+            "looks_like_provider_paste",
+            "parse_provider_paste"
+          ]
+        }
+      ],
+      "exports": [
+        "_ask_models",
+        "run_wizard"
+      ],
+      "totalLines": 216,
+      "hasStructuralAnalysis": true
+    },
+    "byop/core/zed.py": {
+      "filePath": "byop/core/zed.py",
+      "contentHash": "de6d4f9df5f4c8871f3677cd80b56cfc062d2582018a08cca84212c3101f797c",
+      "functions": [
+        {
+          "name": "_run",
+          "params": [
+            "cmd",
+            "capture"
+          ],
+          "returnType": "subprocess.CompletedProcess",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "_bundle_version",
+          "params": [],
+          "returnType": "str | None",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "has_brew",
+          "params": [],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "is_installed",
+          "params": [],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "installed_version",
+          "params": [],
+          "returnType": "str | None",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "brew_installed",
+          "params": [],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "status",
+          "params": [],
+          "returnType": "ZedStatus",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "install",
+          "params": [
+            "log",
+            "force"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 26
+        },
+        {
+          "name": "upgrade",
+          "params": [
+            "log"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "_install_via_download",
+          "params": [
+            "log"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 28
+        },
+        {
+          "name": "latest_release_tag",
+          "params": [],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "json_loads",
+          "params": [
+            "text"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "ZedStatus",
+          "methods": [],
+          "properties": [
+            "installed",
+            "version",
+            "via_brew"
+          ],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "imports": [
+        {
+          "source": "shutil",
+          "specifiers": [
+            "shutil"
+          ]
+        },
+        {
+          "source": "subprocess",
+          "specifiers": [
+            "subprocess"
+          ]
+        },
+        {
+          "source": "tempfile",
+          "specifiers": [
+            "tempfile"
+          ]
+        },
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Callable"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        }
+      ],
+      "exports": [
+        "ZedStatus",
+        "_run",
+        "_bundle_version",
+        "has_brew",
+        "is_installed",
+        "installed_version",
+        "brew_installed",
+        "status",
+        "install",
+        "upgrade",
+        "_install_via_download",
+        "latest_release_tag",
+        "json_loads"
+      ],
+      "totalLines": 184,
+      "hasStructuralAnalysis": true
+    },
+    "byop/py.typed": {
+      "filePath": "byop/py.typed",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": false
+    },
+    "docs/prd/warp-support-v1-prd.md": {
+      "filePath": "docs/prd/warp-support-v1-prd.md",
+      "contentHash": "56b7158da8d5d83310d37c4b93be0d474b45d60846b7a178d9b40fa5a406259c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 97,
+      "hasStructuralAnalysis": true
+    },
+    "docs/prd/warp-support-v1-tickets.md": {
+      "filePath": "docs/prd/warp-support-v1-tickets.md",
+      "contentHash": "0ae2b3ff2178de5a548023be9d1d6e726e738a9a00de47106654ce84ea118566",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 116,
+      "hasStructuralAnalysis": true
+    },
+    "docs/superpowers/specs/2026-07-22-byop-v1.5.0-release.md": {
+      "filePath": "docs/superpowers/specs/2026-07-22-byop-v1.5.0-release.md",
+      "contentHash": "c856d55bf4a6e1b08a991accdbc92e025af775b3b325e47beb9dc228b3a8fc95",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 58,
+      "hasStructuralAnalysis": true
+    },
+    "docs/superpowers/specs/2026-07-22-byop-v2.0.0-release.md": {
+      "filePath": "docs/superpowers/specs/2026-07-22-byop-v2.0.0-release.md",
+      "contentHash": "6f9a8c147b1f8dcd738570301aa84f2756e90e96ddf93b46802558b646089417",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 107,
+      "hasStructuralAnalysis": true
+    },
+    "install.sh": {
+      "filePath": "install.sh",
+      "contentHash": "3e442043627ef97f997d148c78d71b848468709a414c55a4cffd77e0fa7027a4",
+      "functions": [
+        {
+          "name": "info",
+          "params": [],
+          "exported": false,
+          "lineCount": 1
+        },
+        {
+          "name": "die",
+          "params": [],
+          "exported": false,
+          "lineCount": 1
+        },
+        {
+          "name": "find_python",
+          "params": [],
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "latest_tag",
+          "params": [],
+          "exported": false,
+          "lineCount": 5
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 153,
+      "hasStructuralAnalysis": true
+    },
+    "pyproject.toml": {
+      "filePath": "pyproject.toml",
+      "contentHash": "1a72be47a67687156fd053fb686285e0160cac13c5f5514417b297074c643f1a",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 63,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_apply.py": {
+      "filePath": "tests/test_apply.py",
+      "contentHash": "d0f00c5d4be29de352edd4cd22352f9af57a493f76e0ce8d40c1900b541217ab",
+      "functions": [
+        {
+          "name": "_provider",
+          "params": [],
+          "returnType": "ProviderConfig",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "_mock_all",
+          "params": [],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "_stop_all",
+          "params": [
+            "mocks"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_apply_writes_expected_settings",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 27
+        },
+        {
+          "name": "test_apply_invalid_provider_raises",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "test_apply_dry_run_does_not_write",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "test_current_provider_names",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 11
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "unittest",
+          "specifiers": [
+            "mock"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "applymod"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "kc"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "sett"
+          ]
+        },
+        {
+          "source": "byop.core.config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        }
+      ],
+      "exports": [
+        "_provider",
+        "_mock_all",
+        "_stop_all",
+        "test_apply_writes_expected_settings",
+        "test_apply_invalid_provider_raises",
+        "test_apply_dry_run_does_not_write",
+        "test_current_provider_names"
+      ],
+      "totalLines": 121,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_claude_target.py": {
+      "filePath": "tests/test_claude_target.py",
+      "contentHash": "867e8ccbcfd6841be148d98bd92df4bd124f8e0d18aafc75a2e3e1b1ce71481b",
+      "functions": [
+        {
+          "name": "_result",
+          "params": [
+            "returncode",
+            "stdout",
+            "stderr"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_install_via_brew_when_present",
+          "params": [],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "test_install_falls_back_to_npm",
+          "params": [],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "_provider",
+          "params": [
+            "**over"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "test_build_fragment_shape",
+          "params": [],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_configure_writes_settings_json_with_keychain_command",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "test_configure_writes_literal_key_when_no_keychain_entry",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_configure_skip_when_settings_already_match",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 25
+        },
+        {
+          "name": "test_current_provider_names_when_present",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_current_provider_names_when_absent",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "unittest",
+          "specifiers": [
+            "mock"
+          ]
+        },
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        },
+        {
+          "source": "byop.core.config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        },
+        {
+          "source": "byop.core.targets.claude",
+          "specifiers": [
+            "ClaudeTarget"
+          ]
+        }
+      ],
+      "exports": [
+        "_result",
+        "test_install_via_brew_when_present",
+        "test_install_falls_back_to_npm",
+        "_provider",
+        "test_build_fragment_shape",
+        "test_configure_writes_settings_json_with_keychain_command",
+        "test_configure_writes_literal_key_when_no_keychain_entry",
+        "test_configure_skip_when_settings_already_match",
+        "test_current_provider_names_when_present",
+        "test_current_provider_names_when_absent"
+      ],
+      "totalLines": 152,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_cli.py": {
+      "filePath": "tests/test_cli.py",
+      "contentHash": "514684b393ffa5846c23cd44a0eb4b00ce825aac0f945c78a695193e89ac1e40",
+      "functions": [
+        {
+          "name": "test_cli_dry_run_non_interactive",
+          "params": [
+            "monkeypatch"
+          ],
+          "exported": true,
+          "lineCount": 38
+        },
+        {
+          "name": "test_cli_dry_run_does_not_persist_profile_or_keychain",
+          "params": [
+            "monkeypatch",
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 31
+        },
+        {
+          "name": "test_cli_uses_first_model_for_agent_defaults",
+          "params": [
+            "monkeypatch"
+          ],
+          "exported": true,
+          "lineCount": 31
+        },
+        {
+          "name": "test_cli_non_interactive_requires_provider",
+          "params": [
+            "monkeypatch",
+            "capsys"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_cli_config_file_path",
+          "params": [
+            "monkeypatch",
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 35
+        },
+        {
+          "name": "test_cli_target_choices_include_omp_and_claude",
+          "params": [],
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "test_cli_runs_only_opencode_target",
+          "params": [
+            "monkeypatch",
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 33
+        },
+        {
+          "name": "test_cli_conflict_flag_passed_to_configure",
+          "params": [
+            "monkeypatch",
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 40
+        },
+        {
+          "name": "test_cli_config_file_missing_key_rejected",
+          "params": [
+            "monkeypatch",
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_cli_conflict_prompt_in_non_interactive_rejected",
+          "params": [
+            "monkeypatch",
+            "tmp_path",
+            "capsys"
+          ],
+          "exported": true,
+          "lineCount": 35
+        },
+        {
+          "name": "test_cli_conflict_append_against_single_provider_rejected",
+          "params": [
+            "monkeypatch",
+            "tmp_path",
+            "capsys"
+          ],
+          "exported": true,
+          "lineCount": 41
+        },
+        {
+          "name": "test_cli_ctrl_c_exits_cleanly",
+          "params": [
+            "monkeypatch",
+            "capsys",
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "test_cli_session_loop_quits",
+          "params": [
+            "monkeypatch",
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 37
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "byop",
+          "specifiers": [
+            "cli"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "kc"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "prof"
+          ]
+        }
+      ],
+      "exports": [
+        "test_cli_dry_run_non_interactive",
+        "test_cli_dry_run_does_not_persist_profile_or_keychain",
+        "test_cli_uses_first_model_for_agent_defaults",
+        "test_cli_non_interactive_requires_provider",
+        "test_cli_config_file_path",
+        "test_cli_target_choices_include_omp_and_claude",
+        "test_cli_runs_only_opencode_target",
+        "test_cli_conflict_flag_passed_to_configure",
+        "test_cli_config_file_missing_key_rejected",
+        "test_cli_conflict_prompt_in_non_interactive_rejected",
+        "test_cli_conflict_append_against_single_provider_rejected",
+        "test_cli_ctrl_c_exits_cleanly",
+        "test_cli_session_loop_quits"
+      ],
+      "totalLines": 406,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_config.py": {
+      "filePath": "tests/test_config.py",
+      "contentHash": "b50d24175a53d4b9baa75a64a2fa23206e8aea63c7c2affe516056698d2ccec0",
+      "functions": [
+        {
+          "name": "_provider",
+          "params": [
+            "**overrides"
+          ],
+          "returnType": "ProviderConfig",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_model_to_dict_defaults",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_model_to_dict_includes_extras",
+          "params": [],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "test_normalized_api_url_strips_slash",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_env_var_name_basic",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_env_var_name_spaces_and_symbols",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_keychain_server_uses_normalized_url",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_language_models_block",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_agent_block_defaults",
+          "params": [],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_agent_block_selective",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "test_edit_predictions_block_off_by_default",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "test_edit_predictions_block_on",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_validate_ok",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "test_validate_bad_provider_name",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_validate_bad_url",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_validate_short_key",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_validate_no_models",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_validate_bad_reasoning_effort",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_validate_unknown_capability",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_default_capabilities_subset_of_known",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_known_reasoning_efforts_nonempty",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "default_model_capabilities"
+          ]
+        },
+        {
+          "source": "byop.core.config",
+          "specifiers": [
+            "KNOWN_CAPABILITIES",
+            "KNOWN_REASONING_EFFORTS",
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        }
+      ],
+      "exports": [
+        "_provider",
+        "test_model_to_dict_defaults",
+        "test_model_to_dict_includes_extras",
+        "test_normalized_api_url_strips_slash",
+        "test_env_var_name_basic",
+        "test_env_var_name_spaces_and_symbols",
+        "test_keychain_server_uses_normalized_url",
+        "test_language_models_block",
+        "test_agent_block_defaults",
+        "test_agent_block_selective",
+        "test_edit_predictions_block_off_by_default",
+        "test_edit_predictions_block_on",
+        "test_validate_ok",
+        "test_validate_bad_provider_name",
+        "test_validate_bad_url",
+        "test_validate_short_key",
+        "test_validate_no_models",
+        "test_validate_bad_reasoning_effort",
+        "test_validate_unknown_capability",
+        "test_default_capabilities_subset_of_known",
+        "test_known_reasoning_efforts_nonempty"
+      ],
+      "totalLines": 162,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_conflict.py": {
+      "filePath": "tests/test_conflict.py",
+      "contentHash": "d01685bc83948a05c944c709bf3c980c9e243e1d2643254c68e10c1c869aef69",
+      "functions": [
+        {
+          "name": "test_conflict_action_values",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_conflict_action_iteration_order",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_default_replace_for_zed_and_claude",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_default_append_for_py_and_omp",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_interactive_default_is_none",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_resolve_no_collision_non_interactive_uses_target_default",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "test_resolve_no_collision_honors_explicit_flag",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_resolve_collision_explicit_flag_wins",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "test_resolve_collision_interactive_returns_none",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_resolve_collision_non_interactive_uses_target_default",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "test_resolve_invalid_flag_raises",
+          "params": [],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_supports_append_only_for_multi_provider_targets",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "byop.core.conflict",
+          "specifiers": [
+            "ConflictAction",
+            "default_conflict_action",
+            "resolve_conflict_action",
+            "supports_append"
+          ]
+        }
+      ],
+      "exports": [
+        "test_conflict_action_values",
+        "test_conflict_action_iteration_order",
+        "test_default_replace_for_zed_and_claude",
+        "test_default_append_for_py_and_omp",
+        "test_interactive_default_is_none",
+        "test_resolve_no_collision_non_interactive_uses_target_default",
+        "test_resolve_no_collision_honors_explicit_flag",
+        "test_resolve_collision_explicit_flag_wins",
+        "test_resolve_collision_interactive_returns_none",
+        "test_resolve_collision_non_interactive_uses_target_default",
+        "test_resolve_invalid_flag_raises",
+        "test_supports_append_only_for_multi_provider_targets"
+      ],
+      "totalLines": 125,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_export_config.py": {
+      "filePath": "tests/test_export_config.py",
+      "contentHash": "b8a536887cfca24213daaaab8ad9b003d06efabef62cfc93d081d51e24086e0a",
+      "functions": [
+        {
+          "name": "_provider",
+          "params": [],
+          "returnType": "ProviderConfig",
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "test_zed_export_config_includes_provider_block",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "test_py_export_config_shape",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "test_opencode_export_config_shape",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_omp_export_config_inherits_py",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_export_config_returns_empty_when_no_file",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "test_cli_export_config_emits_json_for_each_target",
+          "params": [
+            "capsys"
+          ],
+          "exported": true,
+          "lineCount": 36
+        },
+        {
+          "name": "test_cli_export_config_filters_by_provider",
+          "params": [],
+          "exported": true,
+          "lineCount": 26
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "unittest",
+          "specifiers": [
+            "mock"
+          ]
+        },
+        {
+          "source": "byop.core.config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        },
+        {
+          "source": "byop.core.targets.omp",
+          "specifiers": [
+            "OmpTarget"
+          ]
+        },
+        {
+          "source": "byop.core.targets.opencode",
+          "specifiers": [
+            "OpencodeTarget"
+          ]
+        },
+        {
+          "source": "byop.core.targets.py",
+          "specifiers": [
+            "PyTarget"
+          ]
+        },
+        {
+          "source": "byop.core.targets.zed",
+          "specifiers": [
+            "ZedTarget"
+          ]
+        }
+      ],
+      "exports": [
+        "_provider",
+        "test_zed_export_config_includes_provider_block",
+        "test_py_export_config_shape",
+        "test_opencode_export_config_shape",
+        "test_omp_export_config_inherits_py",
+        "test_export_config_returns_empty_when_no_file",
+        "test_cli_export_config_emits_json_for_each_target",
+        "test_cli_export_config_filters_by_provider"
+      ],
+      "totalLines": 182,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_keychain.py": {
+      "filePath": "tests/test_keychain.py",
+      "contentHash": "39c54e521bcc65a69e53afb2bbc09c58f3f9976fcce0b4fafc31c619ea79a4cb",
+      "functions": [
+        {
+          "name": "_fake_run",
+          "params": [
+            "returncode",
+            "stdout",
+            "stderr"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "test_keychain_has_true",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_keychain_has_false",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_keychain_get_returns_secret",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_keychain_get_returns_none_on_item_not_found",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_keychain_set_calls_add_and_delete",
+          "params": [],
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "test_keychain_set_raises_on_failure",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_env_export_line",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_find_env_in_profiles",
+          "params": [
+            "tmp_path",
+            "monkeypatch"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_write_env_appends_once",
+          "params": [
+            "tmp_path",
+            "monkeypatch"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_ensure_key_keychain_only",
+          "params": [
+            "tmp_path",
+            "monkeypatch"
+          ],
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "test_keychain_has_raises_on_unexpected_exit_code",
+          "params": [],
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "test_keychain_has_returns_false_on_item_not_found",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "test_keychain_set_swallows_missing_entry_on_pretend_delete",
+          "params": [],
+          "exported": true,
+          "lineCount": 25
+        },
+        {
+          "name": "test_keychain_delete_raises_on_unexpected_exit_code",
+          "params": [],
+          "exported": true,
+          "lineCount": 16
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "unittest",
+          "specifiers": [
+            "mock"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "kc"
+          ]
+        }
+      ],
+      "exports": [
+        "_fake_run",
+        "test_keychain_has_true",
+        "test_keychain_has_false",
+        "test_keychain_get_returns_secret",
+        "test_keychain_get_returns_none_on_item_not_found",
+        "test_keychain_set_calls_add_and_delete",
+        "test_keychain_set_raises_on_failure",
+        "test_env_export_line",
+        "test_find_env_in_profiles",
+        "test_write_env_appends_once",
+        "test_ensure_key_keychain_only",
+        "test_keychain_has_raises_on_unexpected_exit_code",
+        "test_keychain_has_returns_false_on_item_not_found",
+        "test_keychain_set_swallows_missing_entry_on_pretend_delete",
+        "test_keychain_delete_raises_on_unexpected_exit_code"
+      ],
+      "totalLines": 206,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_omp_target.py": {
+      "filePath": "tests/test_omp_target.py",
+      "contentHash": "a0c28fbe1d58d4bcf1731cc1483323828c62b66d797c6c2ba2eaf03b7f7f70e7",
+      "functions": [
+        {
+          "name": "_provider",
+          "params": [
+            "**over"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_omp_default_path",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_omp_profile_selects_profile_scoped_models_path",
+          "params": [
+            "tmp_path",
+            "monkeypatch"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_omp_explicit_models_path_overrides_profile",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_omp_profile_uses_explicit_config_root",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_omp_profile_configure_does_not_touch_global_models",
+          "params": [
+            "tmp_path",
+            "monkeypatch"
+          ],
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "test_omp_configure_never_writes_literal_secret_with_keychain",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "test_omp_is_py_target_subclass",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_omp_configure_writes_to_omp_path",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "test_omp_install_via_brew_when_present",
+          "params": [],
+          "exported": true,
+          "lineCount": 20
+        },
+        {
+          "name": "test_omp_registered_with_default_registry",
+          "params": [],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_omp_warns_when_appending_under_suffix",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 27
+        },
+        {
+          "name": "test_omp_detect_installed_uses_PATH_or_dir",
+          "params": [],
+          "exported": true,
+          "lineCount": 15
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "unittest",
+          "specifiers": [
+            "mock"
+          ]
+        },
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        },
+        {
+          "source": "byop.core.config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        },
+        {
+          "source": "byop.core.targets",
+          "specifiers": [
+            "available_targets"
+          ]
+        },
+        {
+          "source": "byop.core.targets.omp",
+          "specifiers": [
+            "OmpTarget"
+          ]
+        },
+        {
+          "source": "byop.core.targets.py",
+          "specifiers": [
+            "PyTarget"
+          ]
+        }
+      ],
+      "exports": [
+        "_provider",
+        "test_omp_default_path",
+        "test_omp_profile_selects_profile_scoped_models_path",
+        "test_omp_explicit_models_path_overrides_profile",
+        "test_omp_profile_uses_explicit_config_root",
+        "test_omp_profile_configure_does_not_touch_global_models",
+        "test_omp_configure_never_writes_literal_secret_with_keychain",
+        "test_omp_is_py_target_subclass",
+        "test_omp_configure_writes_to_omp_path",
+        "test_omp_install_via_brew_when_present",
+        "test_omp_registered_with_default_registry",
+        "test_omp_warns_when_appending_under_suffix",
+        "test_omp_detect_installed_uses_PATH_or_dir"
+      ],
+      "totalLines": 191,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_opencode_target.py": {
+      "filePath": "tests/test_opencode_target.py",
+      "contentHash": "d9681fbee0a22e6249e07f6ac2e46e62c03fb55cd03ae42d0abcb7bcfae30e7b",
+      "functions": [
+        {
+          "name": "_provider",
+          "params": [
+            "**over"
+          ],
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "test_opencode_default_path",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_opencode_build_fragment_uses_openai_compatible_sdk",
+          "params": [],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "test_opencode_falls_back_to_literal_key_when_keychain_missing",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_opencode_configure_writes_merges_preserves_other_providers",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "test_opencode_skip_when_existing_provider",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "test_opencode_append_when_existing_provider",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "test_opencode_current_provider_names",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_opencode_registered_in_default_registry",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_opencode_install_via_brew_when_present",
+          "params": [],
+          "exported": true,
+          "lineCount": 14
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "unittest",
+          "specifiers": [
+            "mock"
+          ]
+        },
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        },
+        {
+          "source": "byop.core.config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        },
+        {
+          "source": "byop.core.targets.opencode",
+          "specifiers": [
+            "DEFAULT_CONFIG_PATH",
+            "OpencodeTarget"
+          ]
+        }
+      ],
+      "exports": [
+        "_provider",
+        "test_opencode_default_path",
+        "test_opencode_build_fragment_uses_openai_compatible_sdk",
+        "test_opencode_falls_back_to_literal_key_when_keychain_missing",
+        "test_opencode_configure_writes_merges_preserves_other_providers",
+        "test_opencode_skip_when_existing_provider",
+        "test_opencode_append_when_existing_provider",
+        "test_opencode_current_provider_names",
+        "test_opencode_registered_in_default_registry",
+        "test_opencode_install_via_brew_when_present"
+      ],
+      "totalLines": 158,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_paste.py": {
+      "filePath": "tests/test_paste.py",
+      "contentHash": "71d0b20b4857c5741ea0bb647f93f7d817238d1f6cae4898fca460843f116c7d",
+      "functions": [
+        {
+          "name": "test_looks_like_provider_paste_accepts_multiline_json",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "test_looks_like_provider_paste_rejects_single_line",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_looks_like_provider_paste_rejects_empty",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_looks_like_provider_paste_rejects_non_json_garbage",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_parse_provider_paste_round_trip",
+          "params": [],
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "test_parse_provider_paste_reports_missing_api_key",
+          "params": [],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_parse_provider_paste_reports_missing_name_and_url",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_parse_provider_paste_reports_missing_models",
+          "params": [],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_parse_provider_paste_accepts_id_alias_for_models",
+          "params": [],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "test_parse_provider_paste_name_wins_over_id",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_parse_provider_paste_accepts_context_window_alias",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_parse_provider_paste_rejects_garbage",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_parse_provider_paste_rejects_non_object",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_parse_provider_paste_rejects_model_missing_name",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_parse_provider_paste_silently_drops_non_dict_model_entries",
+          "params": [],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "test_parse_provider_paste_non_dict_capabilities_become_empty",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_parse_provider_paste_accepts_jsonc_line_comments",
+          "params": [],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "test_parse_provider_paste_accepts_jsonc_block_comments",
+          "params": [],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "test_parse_provider_paste_does_not_strip_comments_inside_strings",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_parse_provider_paste_reports_missing_in_list_not_placeholder_string",
+          "params": [],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "test_looks_like_provider_paste_accepts_jsonc",
+          "params": [],
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "byop.core.config",
+          "specifiers": [
+            "ProviderConfig"
+          ]
+        },
+        {
+          "source": "byop.core.paste",
+          "specifiers": [
+            "looks_like_provider_paste",
+            "parse_provider_paste"
+          ]
+        }
+      ],
+      "exports": [
+        "test_looks_like_provider_paste_accepts_multiline_json",
+        "test_looks_like_provider_paste_rejects_single_line",
+        "test_looks_like_provider_paste_rejects_empty",
+        "test_looks_like_provider_paste_rejects_non_json_garbage",
+        "test_parse_provider_paste_round_trip",
+        "test_parse_provider_paste_reports_missing_api_key",
+        "test_parse_provider_paste_reports_missing_name_and_url",
+        "test_parse_provider_paste_reports_missing_models",
+        "test_parse_provider_paste_accepts_id_alias_for_models",
+        "test_parse_provider_paste_name_wins_over_id",
+        "test_parse_provider_paste_accepts_context_window_alias",
+        "test_parse_provider_paste_rejects_garbage",
+        "test_parse_provider_paste_rejects_non_object",
+        "test_parse_provider_paste_rejects_model_missing_name",
+        "test_parse_provider_paste_silently_drops_non_dict_model_entries",
+        "test_parse_provider_paste_non_dict_capabilities_become_empty",
+        "test_parse_provider_paste_accepts_jsonc_line_comments",
+        "test_parse_provider_paste_accepts_jsonc_block_comments",
+        "test_parse_provider_paste_does_not_strip_comments_inside_strings",
+        "test_parse_provider_paste_reports_missing_in_list_not_placeholder_string",
+        "test_looks_like_provider_paste_accepts_jsonc"
+      ],
+      "totalLines": 247,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_profiles.py": {
+      "filePath": "tests/test_profiles.py",
+      "contentHash": "c09875b68a95210fedc263c29197b3e6bf72940bead13121daa6b19362a844e9",
+      "functions": [
+        {
+          "name": "isolated_config",
+          "params": [
+            "monkeypatch"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "_sample_profile",
+          "params": [
+            "name"
+          ],
+          "returnType": "prof.Profile",
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "test_config_dir_respects_BYOP_CONFIG_DIR",
+          "params": [
+            "monkeypatch"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_ensure_config_dir_creates_profiles_subdir",
+          "params": [
+            "isolated_config"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_save_and_load_round_trip",
+          "params": [
+            "isolated_config"
+          ],
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "test_save_overwrite_guard",
+          "params": [
+            "isolated_config"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_load_missing_raises",
+          "params": [
+            "isolated_config"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_delete_profile",
+          "params": [
+            "isolated_config"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_default_active_profile",
+          "params": [
+            "isolated_config"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "test_set_and_get_active_profile",
+          "params": [
+            "isolated_config"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_list_profiles_active_first",
+          "params": [
+            "isolated_config"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_profile_from_provider_round_trip",
+          "params": [
+            "isolated_config"
+          ],
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "test_profile_from_provider_env_ref",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "test_invalid_profile_name_rejected",
+          "params": [
+            "bad"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "tempfile",
+          "specifiers": [
+            "tempfile"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "pmod"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "prof"
+          ]
+        },
+        {
+          "source": "byop.core.config",
+          "specifiers": [
+            "ModelConfig"
+          ]
+        }
+      ],
+      "exports": [
+        "isolated_config",
+        "_sample_profile",
+        "test_config_dir_respects_BYOP_CONFIG_DIR",
+        "test_ensure_config_dir_creates_profiles_subdir",
+        "test_save_and_load_round_trip",
+        "test_save_overwrite_guard",
+        "test_load_missing_raises",
+        "test_delete_profile",
+        "test_default_active_profile",
+        "test_set_and_get_active_profile",
+        "test_list_profiles_active_first",
+        "test_profile_from_provider_round_trip",
+        "test_profile_from_provider_env_ref",
+        "test_invalid_profile_name_rejected"
+      ],
+      "totalLines": 185,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_prompt.py": {
+      "filePath": "tests/test_prompt.py",
+      "contentHash": "a2b120d4e873e06fbcc8a8c684f78cbafac93a516d9134832d11634ecdc350a8",
+      "functions": [
+        {
+          "name": "test_strip_escape_chars_removes_esc_bytes",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "test_strip_escape_chars_does_not_touch_legitimate_text",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "prompt"
+          ]
+        }
+      ],
+      "exports": [
+        "test_strip_escape_chars_removes_esc_bytes",
+        "test_strip_escape_chars_does_not_touch_legitimate_text"
+      ],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_settings.py": {
+      "filePath": "tests/test_settings.py",
+      "contentHash": "7e00229c72a9767c8c48b73763769dbfb19a44f39092fcc668e78da5e08d2d35",
+      "functions": [
+        {
+          "name": "test_loads_strips_line_comments",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_loads_strips_block_comments",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_loads_keeps_urls_in_strings",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_loads_handles_trailing_comma",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_loads_keeps_comment_like_in_key",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_load_path_missing_returns_empty",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "test_merge_deep",
+          "params": [],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_merge_overrides_scalar",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_write_and_reload_roundtrip",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_write_creates_parent_dirs",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "tempfile",
+          "specifiers": [
+            "tempfile"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "sett"
+          ]
+        }
+      ],
+      "exports": [
+        "test_loads_strips_line_comments",
+        "test_loads_strips_block_comments",
+        "test_loads_keeps_urls_in_strings",
+        "test_loads_handles_trailing_comma",
+        "test_loads_keeps_comment_like_in_key",
+        "test_load_path_missing_returns_empty",
+        "test_merge_deep",
+        "test_merge_overrides_scalar",
+        "test_write_and_reload_roundtrip",
+        "test_write_creates_parent_dirs"
+      ],
+      "totalLines": 72,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_targets.py": {
+      "filePath": "tests/test_targets.py",
+      "contentHash": "3eb86c8035fe340d7198e8c14d36259ef5e7c3aadf2ddacd88264f53b427e96f",
+      "functions": [
+        {
+          "name": "_provider",
+          "params": [
+            "**over"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "test_registry_returns_instances",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_detect_installed_filters",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_zed_build_fragment",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_zed_configure_writes_and_merges",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "test_zed_skip_when_same_provider_and_url",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 29
+        },
+        {
+          "name": "test_zed_no_skip_when_url_differs",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "test_zed_dry_run_does_not_write",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_py_is_installed_via_cli",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_py_build_fragment_shape",
+          "params": [],
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "test_py_api_key_ref_uses_keychain_command_when_present",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_py_api_key_ref_falls_back_to_literal_without_keychain",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_py_build_fragment_uses_keychain_command",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_py_configure_writes_models_json",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_py_configure_merges_existing_providers",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "test_py_dry_run_does_not_write",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_py_append_uses_numeric_suffix",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "test_py_append_picks_next_available_suffix",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "test_py_skip_when_provider_exists",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 23
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "unittest",
+          "specifiers": [
+            "mock"
+          ]
+        },
+        {
+          "source": "byop.core.config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        },
+        {
+          "source": "byop.core.targets",
+          "specifiers": [
+            "available_targets",
+            "detect_installed"
+          ]
+        },
+        {
+          "source": "byop.core.targets.py",
+          "specifiers": [
+            "PyTarget"
+          ]
+        },
+        {
+          "source": "byop.core.targets.zed",
+          "specifiers": [
+            "ZedTarget"
+          ]
+        }
+      ],
+      "exports": [
+        "_provider",
+        "test_registry_returns_instances",
+        "test_detect_installed_filters",
+        "test_zed_build_fragment",
+        "test_zed_configure_writes_and_merges",
+        "test_zed_skip_when_same_provider_and_url",
+        "test_zed_no_skip_when_url_differs",
+        "test_zed_dry_run_does_not_write",
+        "test_py_is_installed_via_cli",
+        "test_py_build_fragment_shape",
+        "test_py_api_key_ref_uses_keychain_command_when_present",
+        "test_py_api_key_ref_falls_back_to_literal_without_keychain",
+        "test_py_build_fragment_uses_keychain_command",
+        "test_py_configure_writes_models_json",
+        "test_py_configure_merges_existing_providers",
+        "test_py_dry_run_does_not_write",
+        "test_py_append_uses_numeric_suffix",
+        "test_py_append_picks_next_available_suffix",
+        "test_py_skip_when_provider_exists"
+      ],
+      "totalLines": 284,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_warp_target.py": {
+      "filePath": "tests/test_warp_target.py",
+      "contentHash": "1157e96a269b9c256e6db69c73cd7c9666d88c90c21a63ecfb52f1134653c3b9",
+      "functions": [
+        {
+          "name": "provider",
+          "params": [
+            "url"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "test_detection_from_temp_settings",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_dry_run_redacts_key_and_does_not_write",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_unknown_schema_refuses_write",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_append_rejected",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_endpoint_must_be_public_https",
+          "params": [
+            "url"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_toml_round_trip_preserves_unrelated_tables",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "unittest",
+          "specifiers": [
+            "mock"
+          ]
+        },
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        },
+        {
+          "source": "byop.core.config",
+          "specifiers": [
+            "ModelConfig",
+            "ProviderConfig"
+          ]
+        },
+        {
+          "source": "byop.core.targets.warp",
+          "specifiers": [
+            "WarpTarget",
+            "validate_warp_endpoint"
+          ]
+        }
+      ],
+      "exports": [
+        "provider",
+        "test_detection_from_temp_settings",
+        "test_dry_run_redacts_key_and_does_not_write",
+        "test_unknown_schema_refuses_write",
+        "test_append_rejected",
+        "test_endpoint_must_be_public_https",
+        "test_toml_round_trip_preserves_unrelated_tables"
+      ],
+      "totalLines": 55,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_wizard.py": {
+      "filePath": "tests/test_wizard.py",
+      "contentHash": "211f6705bc21c7c5e1be98af15a0093d82fdc63bacc858f3807f603493695728",
+      "functions": [
+        {
+          "name": "_patch_wizard",
+          "params": [
+            "ask_seq",
+            "ask_int_seq",
+            "confirm_seq",
+            "secret"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_run_wizard_builds_provider_and_prefs",
+          "params": [],
+          "exported": true,
+          "lineCount": 38
+        },
+        {
+          "name": "test_run_wizard_multiple_models",
+          "params": [],
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "test_run_wizard_keychain_opt_out",
+          "params": [],
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "test_run_wizard_accepts_full_paste",
+          "params": [],
+          "exported": true,
+          "lineCount": 28
+        },
+        {
+          "name": "test_run_wizard_falls_back_to_secret_prompt_when_paste_missing_key",
+          "params": [],
+          "exported": true,
+          "lineCount": 21
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "unittest",
+          "specifiers": [
+            "mock"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "wizard"
+          ]
+        }
+      ],
+      "exports": [
+        "_patch_wizard",
+        "test_run_wizard_builds_provider_and_prefs",
+        "test_run_wizard_multiple_models",
+        "test_run_wizard_keychain_opt_out",
+        "test_run_wizard_accepts_full_paste",
+        "test_run_wizard_falls_back_to_secret_prompt_when_paste_missing_key"
+      ],
+      "totalLines": 162,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_zed.py": {
+      "filePath": "tests/test_zed.py",
+      "contentHash": "1aed6a40c8712e8081880da29e25a2d554fa9d63a1ff650a2e5897fbee2f016a",
+      "functions": [
+        {
+          "name": "test_has_brew_true",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_has_brew_false",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "_result",
+          "params": [
+            "returncode",
+            "stdout",
+            "stderr"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_is_installed_true",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_is_installed_false",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_installed_version_parses",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_brew_installed_true",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_brew_installed_false",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_install_via_brew_when_missing",
+          "params": [],
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "test_upgrade_already_up_to_date_is_ok",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_latest_release_tag_parses_json",
+          "params": [],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "test_install_via_download_fallback",
+          "params": [
+            "tmp_path"
+          ],
+          "exported": true,
+          "lineCount": 34
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "unittest",
+          "specifiers": [
+            "mock"
+          ]
+        },
+        {
+          "source": "byop.core",
+          "specifiers": [
+            "zedmod"
+          ]
+        }
+      ],
+      "exports": [
+        "test_has_brew_true",
+        "test_has_brew_false",
+        "_result",
+        "test_is_installed_true",
+        "test_is_installed_false",
+        "test_installed_version_parses",
+        "test_brew_installed_true",
+        "test_brew_installed_false",
+        "test_install_via_brew_when_missing",
+        "test_upgrade_already_up_to_date_is_ok",
+        "test_latest_release_tag_parses_json",
+        "test_install_via_download_fallback"
+      ],
+      "totalLines": 147,
+      "hasStructuralAnalysis": true
+    },
+    "worker.js": {
+      "filePath": "worker.js",
+      "contentHash": "4e8c65abb9d17dfed1605e3791d74f6d93bb324dc7b397758191c1064c18da32",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 84,
+      "hasStructuralAnalysis": true
+    },
+    "wrangler.toml": {
+      "filePath": "wrangler.toml",
+      "contentHash": "0f335bd50f975223c750ef8a790ad68756d227f6f59a035f78f5bc09538061bf",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    }
+  }
+}
