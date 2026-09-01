@@ -1,6 +1,8 @@
 # byop
 
 [![CI](https://github.com/thinhngotony/byop/actions/workflows/ci.yml/badge.svg)](https://github.com/thinhngotony/byop/actions/workflows/ci.yml)
+
+[![CI](https://github.com/thinhngotony/byop/actions/workflows/ci.yml/badge.svg)](https://github.com/thinhngotony/byop/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -44,6 +46,7 @@ writes your secret to disk in plaintext.
 | `py` (py.dev / Pi) | `~/.pi/agent/models.json` | Homebrew cask |
 | `omp` (oh-my-pi / Oh My Pi) | `~/.omp/agent/models.json` | `brew install can1357/tap/omp` / `curl -fsSL https://omp.sh/install | sh` |
 | `claude` (Claude Code) | `~/.claude/settings.json` | `brew install --cask claude-code` / `npm i -g @anthropic-ai/claude-code` / `curl -fsSL https://claude.ai/install.sh | sh` |
+| `codex` (Codex desktop / CLI) | `~/.codex/config.toml` | Install from https://openai.com/codex/ |
 | `warp` (Warp) | `~/.warp/settings.toml` (read-only) | Homebrew cask / https://www.warp.dev/download |
 
 Warp support currently prints exact values for manual entry in Warp Settings > AI > Custom inference endpoint. Warp's endpoint TOML schema is undocumented and unverified, so byop never guesses keys or writes the settings file; API keys are redacted from output. Warp requires a public HTTPS endpoint (local/private URLs are rejected). `--conflict replace` and `skip` are accepted; `append` is rejected because Warp has one active endpoint. Unattended secure-storage automation is not supported: Warp's private `AiApiKeys` blob has no documented external write contract. Tracking request: [warpdotdev/warp#14721](https://github.com/warpdotdev/warp/issues/14721).
@@ -107,8 +110,8 @@ tools and asks which to configure:
 
 | Flag | Purpose |
 | --- | --- |
-| `--target {zed,py,omp,claude,opencode,warp}` | Configure only the named target(s); repeatable. Defaults to all detected apps. |
-| `--conflict {replace,skip,append,prompt}` | What to do when a provider with the same name already exists on a target. Default: prompt interactively; `replace` for zed/claude, `append` for py/omp in non-interactive mode. |
+| `--target {zed,py,omp,claude,codex,opencode,warp}` | Configure only the named target(s); repeatable. Defaults to all detected apps. |
+| `--conflict {replace,skip,append,prompt}` | What to do when a provider with the same name already exists on a target. Default: prompt interactively; `replace` for zed/claude/codex, `append` for py/omp/opencode in non-interactive mode. |
 | `--settings PATH` | Override the Zed settings path (default `~/.config/zed/settings.json`). |
 | `--dry-run` | Print the configuration fragments that *would* be written; change nothing. |
 | `--no-keychain` | Skip the macOS keychain (falls back to an embedded key — less secure). |
@@ -180,6 +183,23 @@ change.
 
 For a provider `MyProvider` with model `my-model`:
 
+**Codex desktop / CLI** (`~/.codex/config.toml`):
+
+```toml
+model = "my-model"
+model_provider = "MyProvider"
+
+[model_providers.MyProvider]
+name = "MyProvider"
+base_url = "https://api.example.com/v1"
+wire_api = "responses"
+# byop's default keychain mode writes a command-backed auth table here.
+env_key = "MYPROVIDER_API_KEY"
+```
+
+Codex custom providers support the Responses API only. The selected provider is
+single-valued, so Codex uses `replace` or `skip`; `append` is rejected.
+
 **Zed** (`~/.config/zed/settings.json`):
 
 ```json
@@ -225,6 +245,31 @@ keychain **at request time**, so the key is never stored in `models.json`. If no
 keychain entry exists, `byop` falls back to embedding the key inline (with a
 warning).
 
+**Codex desktop / CLI** (`~/.codex/config.toml`):
+
+```toml
+model = "my-model"
+model_provider = "MyProvider"
+
+[model_providers.MyProvider]
+name = "MyProvider"
+base_url = "https://api.example.com/v1"
+wire_api = "responses"
+env_key = "MYPROVIDER_API_KEY"
+```
+
+Codex custom providers must use the OpenAI Responses API (`wire_api =
+"responses"`). With the default keychain mode, byop stores the secret in the
+macOS keychain and configures Codex's command-backed `auth` lookup, so the
+secret is not written to `config.toml`. With `--env-key` / `--no-keychain`,
+Codex references the generated environment variable name instead; byop does
+not write the secret into the Codex config. Codex supports one active provider,
+so `append` is not available for this target.
+
+The command-backed keychain lookup uses macOS's `security` command at request
+time. Review the generated fragment with `--dry-run` before applying it, and
+ensure the keychain entry is available to the Codex process.
+
 ## Security
 
 - **Zed**: the API key is written to the **macOS login keychain** keyed by the
@@ -232,6 +277,9 @@ warning).
   never written to `settings.json` or shell history.
 - **py.dev**: the key is read from that same keychain entry via a `!command`
   reference, so `models.json` contains no secret.
+- **Codex**: the default configuration uses a command-backed `auth` lookup
+  against that keychain entry; `--no-keychain` / `--env-key` uses an `env_key`
+  reference instead. `config.toml` contains neither form of the secret.
 - The `--env-key` option appends a single `export` line to `~/.zshrc` (or
   another detected profile) and refuses to duplicate it on re-runs.
 - No credentials are sent over the network by `byop` itself; it only writes
@@ -304,6 +352,7 @@ byop/
 │       ├── zed.py         # ZedTarget
 │       ├── py.py          # PyTarget (py.dev)
 │       ├── claude.py      # ClaudeTarget (Claude Code)
+│       ├── codex.py       # CodexTarget (Codex desktop / CLI)
 │       ├── omp.py         # OmpTarget (subclass of PyTarget)
 │       └── registry.py    # ALL_TARGETS + extension point
 └── tests/                 # unit + integration (pytest)
@@ -327,6 +376,7 @@ that accepts an OpenAI-compatible endpoint. Today the shipped targets are:
 - **py.dev / Pi** (`py`) — fully implemented.
 - **Claude Code** (`claude`) — fully implemented.
 - **Oh My Pi / omp** (`omp`) — fully implemented.
+- **Codex desktop / CLI** (`codex`) — fully implemented.
 
 If you want to add another target, the registry is the only place to touch.
 - **Hermes / OpenCode** and other agent CLIs that consume `models.json`-style

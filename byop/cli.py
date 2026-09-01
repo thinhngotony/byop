@@ -152,8 +152,8 @@ def _add_apply_args(p: argparse.ArgumentParser) -> None:
         "--target",
         action="append",
         default=[],
-        choices=["zed", "py", "omp", "claude", "opencode", "warp"],
-        help="Restrict to specific target(s): zed, py, omp, claude, opencode, warp (repeatable). Defaults to all detected/installed apps.",
+        choices=["zed", "py", "omp", "claude", "codex", "opencode", "warp"],
+        help="Restrict to specific target(s): zed, py, omp, claude, codex, opencode, warp (repeatable). Defaults to all detected/installed apps.",
     )
     p.add_argument(
         "--profile",

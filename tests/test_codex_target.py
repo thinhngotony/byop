@@ -1,0 +1,169 @@
+"""Tests for the Codex target."""
+
+import json
+import tomllib
+from pathlib import Path
+from unittest import mock
+
+import pytest
+
+from byop.core.config import ModelConfig, ProviderConfig
+from byop.core.targets.codex import CodexTarget
+
+
+def _provider(**over):
+    base = {
+        "provider_name": "HyberOrbit",
+        "api_url": "https://api.example.com/v1/",
+        "api_key": "sk-12345678",
+        "models": [ModelConfig(name="hy3", reasoning_effort="high")],
+    }
+    base.update(over)
+    return ProviderConfig(**base)
+
+
+def test_codex_default_path():
+    assert CodexTarget().config_path == Path.home() / ".codex" / "config.toml"
+
+
+def test_codex_is_installed_detects_config_parent(tmp_path):
+    assert CodexTarget(tmp_path / "config.toml").is_installed() is True
+
+
+def test_codex_build_fragment_uses_responses_and_env_key():
+    fragment = CodexTarget().build_fragment(_provider(), use_keychain=False, use_env=True)
+    assert fragment["model"] == "hy3"
+    block = fragment["model_providers"]["HyberOrbit"]
+    assert block["base_url"] == "https://api.example.com/v1"
+    assert block["wire_api"] == "responses"
+    assert block["env_key"] == "HYBERORBIT_API_KEY"
+    assert _provider().api_key not in str(fragment)
+
+
+def test_codex_build_fragment_uses_command_auth_without_secret():
+    fragment = CodexTarget().build_fragment(_provider())
+    block = fragment["model_providers"]["HyberOrbit"]
+    assert block["auth"]["command"] == "security"
+    assert block["auth"]["args"][-1] == "-w"
+    assert "env_key" not in block
+    assert "sk-12345678" not in str(fragment)
+
+
+def test_codex_build_fragment_rejects_missing_credentials():
+    with pytest.raises(ValueError, match="either keychain storage"):
+        CodexTarget().build_fragment(_provider(), use_keychain=False, use_env=False)
+
+
+def test_codex_configure_merges_and_preserves_other_values(tmp_path):
+    path = tmp_path / "config.toml"
+    path.write_text('model = "old"\n[features]\njs_repl = false\n', encoding="utf-8")
+    target = CodexTarget(path)
+    with mock.patch("byop.core.targets.codex.kc.ensure_key"):
+        target.configure(_provider(), use_keychain=False, use_env=True, log=lambda _: None)
+    data = tomllib.loads(path.read_text(encoding="utf-8"))
+    assert data["model"] == "hy3"
+    assert data["model_provider"] == "HyberOrbit"
+    assert data["features"]["js_repl"] is False
+
+
+def test_codex_skip_does_not_write(tmp_path):
+    path = tmp_path / "config.toml"
+    path.write_text('model_provider = "HyberOrbit"\n', encoding="utf-8")
+    target = CodexTarget(path)
+    with mock.patch.object(Path, "write_text") as write:
+        target.configure(_provider(), use_keychain=False, use_env=True,
+                         conflict_action="skip", log=lambda _: None)
+    write.assert_not_called()
+
+
+def test_codex_rejects_append(tmp_path):
+    with pytest.raises(ValueError, match="one active model provider"):
+        CodexTarget(tmp_path / "config.toml").configure(
+            _provider(), use_keychain=False, use_env=True,
+            conflict_action="append", log=lambda _: None
+        )
+
+
+def test_codex_current_provider_names(tmp_path):
+    path = tmp_path / "config.toml"
+    path.write_text('model_provider = "HyberOrbit"\n', encoding="utf-8")
+    assert CodexTarget(path).current_provider_names() == ["HyberOrbit"]
+
+
+def test_codex_build_fragment_includes_reasoning_and_catalog(tmp_path):
+    # Provider with reasoning should expose thinking-effort picker via catalogue.
+    target = CodexTarget(tmp_path / "config.toml", catalog_dir=tmp_path / "catalogs")
+    frag = target.build_fragment(_provider(), use_keychain=False, use_env=True)
+    assert frag["model_reasoning_effort"] == "high"
+    assert frag["model_supports_reasoning_summaries"] is True
+    assert frag["model_catalog_json"].endswith("HyberOrbit.json")
+    assert "model_providers" in frag
+
+
+def test_codex_build_fragment_omits_catalog_when_no_reasoning(tmp_path):
+    prov = _provider(models=[ModelConfig(name="plain", reasoning_effort="none")])
+    target = CodexTarget(tmp_path / "config.toml", catalog_dir=tmp_path / "catalogs")
+    frag = target.build_fragment(prov, use_keychain=False, use_env=True)
+    assert "model_catalog_json" not in frag
+    assert "model_supports_reasoning_summaries" not in frag
+
+
+def test_codex_build_catalog_has_all_models(tmp_path):
+    prov = _provider(models=[
+        ModelConfig(name="lite", reasoning_effort="low"),
+        ModelConfig(name="pro", reasoning_effort="medium"),
+        ModelConfig(name="max", reasoning_effort="high"),
+    ])
+    target = CodexTarget(tmp_path / "config.toml", catalog_dir=tmp_path / "catalogs")
+    cat = target.build_catalog(prov)
+    slugs = [m["slug"] for m in cat["models"]]
+    assert slugs == ["lite", "pro", "max"]
+    for m in cat["models"]:
+        assert "supported_reasoning_levels" in m
+        assert {lvl["effort"] for lvl in m["supported_reasoning_levels"]} >= {"low", "medium", "high", "xhigh"}
+
+
+def test_codex_configure_writes_catalog_and_config(tmp_path):
+    cfg = tmp_path / "config.toml"
+    cat_dir = tmp_path / "catalogs"
+    target = CodexTarget(cfg, catalog_dir=cat_dir)
+    prov = _provider(models=[
+        ModelConfig(name="lite", reasoning_effort="low"),
+        ModelConfig(name="pro", reasoning_effort="medium"),
+    ])
+    with mock.patch("byop.core.targets.codex.kc.ensure_key"):
+        target.configure(prov, use_keychain=False, use_env=True, log=lambda _: None)
+    # Config written
+    data = tomllib.loads(cfg.read_text(encoding="utf-8"))
+    assert data["model"] == "lite"
+    assert data["model_provider"] == "HyberOrbit"
+    assert data["model_catalog_json"].endswith("HyberOrbit.json")
+    # Catalogue written
+    cat_path = cat_dir / "HyberOrbit.json"
+    assert cat_path.exists()
+    cat = json.loads(cat_path.read_text(encoding="utf-8"))
+    assert len(cat["models"]) == 2
+
+
+def test_codex_configure_deep_merges_preserves_other_providers(tmp_path):
+    cfg = tmp_path / "config.toml"
+    cfg.write_text(
+        'model = "old"\n[model_providers.Other]\nname = "Other"\nbase_url = "https://other.example.com/v1"\n',
+        encoding="utf-8",
+    )
+    target = CodexTarget(cfg, catalog_dir=tmp_path / "catalogs")
+    with mock.patch("byop.core.targets.codex.kc.ensure_key"):
+        target.configure(_provider(), use_keychain=False, use_env=True, log=lambda _: None)
+    data = tomllib.loads(cfg.read_text(encoding="utf-8"))
+    assert "Other" in data["model_providers"]
+    assert "HyberOrbit" in data["model_providers"]
+
+
+def test_codex_dry_run_does_not_write(tmp_path):
+    cfg = tmp_path / "config.toml"
+    cat_dir = tmp_path / "catalogs"
+    target = CodexTarget(cfg, catalog_dir=cat_dir)
+    with mock.patch.object(Path, "write_text") as wt:
+        target.configure(_provider(), dry_run=True, use_keychain=False, use_env=True, log=lambda _: None)
+    wt.assert_not_called()
+    assert not (cat_dir / "HyberOrbit.json").exists()
